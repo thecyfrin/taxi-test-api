@@ -13,9 +13,6 @@ RUN npm ci
 # Copy the rest of the application code to the working directory
 COPY . .
 
-# Build the application (if necessary)
-RUN npm run build
-
 # Expose the port your application listens on
 EXPOSE 3000
 
