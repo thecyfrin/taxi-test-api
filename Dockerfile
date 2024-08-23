@@ -7,11 +7,14 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
+# Clear out any existing node_modules
+RUN rm -rf node_modules
+
 # Install dependencies
 RUN npm install
 
 # Rebuild bcrypt to ensure compatibility with the Docker environment
-RUN npm rebuild bcrypt --build-from-source
+RUN npm install bcrypt --save --build-from-source --napi-modules=bcrypt_lib
 
 # Copy the rest of the application code to the working directory
 COPY . .
