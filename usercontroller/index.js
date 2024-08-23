@@ -28,7 +28,7 @@ module.exports = {
                 return res.status(401).json({ message: 'email-not-found', data: "Insert a valid email address" });
             }
 
-            const isPassEqual = String.compare(req.body.password, user.password);
+            const isPassEqual = req.body.password === user.password;
             if(!isPassEqual) {
                 return res.status(401).json({ message: 'wrong-password', data: "Enter correct password" });
             }
