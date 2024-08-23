@@ -1,5 +1,5 @@
 const UserModel = require('../models/usermodel');
-const bcrypt = require('bcrypt');
+
 const jwt = require('jsonwebtoken');
 
 module.exports = {
@@ -10,7 +10,6 @@ module.exports = {
     // return response to client
     registerUser: async (req,res) => {
         const userModel = new UserModel(req.body);
-        userModel.password = await bcrypt.hash(req.body.password, 10);
 
         try {
             
@@ -29,7 +28,7 @@ module.exports = {
                 return res.status(401).json({ message: 'email-not-found', data: "Insert a valid email address" });
             }
 
-            const isPassEqual = await bcrypt.compare(req.body.password, user.password);
+            const isPassEqual = String.compare(req.body.password, user.password);
             if(!isPassEqual) {
                 return res.status(401).json({ message: 'wrong-password', data: "Enter correct password" });
             }
@@ -42,7 +41,7 @@ module.exports = {
                 phone : user.phone
             }
 
-            const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {expiresIn : '4h'});
+            const jwtToken = jwt.sign(tokenObject, "full-secret", {expiresIn : '4h'});
             
             return res.status(201).json({ jwtToken, tokenObject });
 

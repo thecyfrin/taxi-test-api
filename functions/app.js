@@ -7,7 +7,7 @@ require('dotenv').config();
 require('../config/db');
 
 
-const PORT = process.env.PORT || 8080;
+const PORT = 8080;
 
 app.use(bodyParser.json());
 app.use(`/.netlify/functions/app`, routes); 
