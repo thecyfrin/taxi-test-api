@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 3000
 
 # Set the command to start the application
-RUN npm index.js
+RUN node index.js
