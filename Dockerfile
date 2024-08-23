@@ -10,7 +10,6 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-RUN npm install nodemon
 
 # Copy the rest of the application code to the working directory
 COPY . .
@@ -19,4 +18,4 @@ COPY . .
 EXPOSE 3000
 
 # Set the command to start the application
-RUN npm start
+RUN npm index.js
