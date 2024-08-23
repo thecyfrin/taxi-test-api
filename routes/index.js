@@ -6,6 +6,10 @@ const { ensureAuthenticated } = require('../utils/auth');
 const routes = express.Router();
 
 
+routes.get("/", (req, res) => {
+    res.send("App is running..");
+});
+
 routes.post('/register', userRegisterValidate, registerUser);
 
 routes.post('/login', userLoginValidate, loginUser);
