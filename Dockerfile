@@ -14,4 +14,4 @@ COPY . .
 
 EXPOSE 5027 
 # Define the entry point for the container
-CMD ["npm", "start"]
+CMD ["npm", "index.js"]
