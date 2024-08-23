@@ -10,6 +10,9 @@ require('../config/db');
 const PORT = 8080;
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true })); // Add this line
+
+
 app.use(`/.netlify/functions/app`, routes); 
 
 module.exports.handler = serverless(app);
