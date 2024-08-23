@@ -8,7 +8,9 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
+
+RUN npm install nodemon
 
 # Copy the rest of the application code to the working directory
 COPY . .
@@ -17,4 +19,4 @@ COPY . .
 EXPOSE 3000
 
 # Set the command to start the application
-CMD ["npm", "index.js"]
+RUN npm start
