@@ -5,10 +5,12 @@ FROM node:20
 WORKDIR /app
 
 # Copy the application files into the working directory
-COPY package*.json ./
+COPY . /app
 
 # Install the application dependencies
 RUN npm install
+
+RUN npm install nodemon
 
 COPY . .
 
