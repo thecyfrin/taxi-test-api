@@ -9,7 +9,7 @@ const userRegisterValidate = (req, res, next) => {
         gender: Joi.string().min(2).max(12).required(),
         phone: Joi.string().min(8).required(),
     });
-    console.log(req.body);
+    
     const {err, value} = schema.validate(req.body);
     if(err) {
         return res.status(400).json({message: "Bad Request", err});
@@ -22,7 +22,7 @@ const userLoginValidate = (req, res, next) => {
         email: Joi.string().required(),
         password: Joi.string().min(5).alphanum().required(),
     });
-    console.log(req.body);
+    
     const {err, value} = schema.validate(req.body);
     if(err) {
         return res.status(400).json({message: "Bad Request", err});

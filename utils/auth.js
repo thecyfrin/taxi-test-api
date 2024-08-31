@@ -7,14 +7,12 @@ const ensureAuthenticated = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(req.headers['authorization'], "full-secret");
-        // if(!decoded) {
-        //     return res.status(403).json({message: "Invalid Token"});
-
-        // }
+        if(!decoded) {
+            return res.status(403).json({message: "Invalid Token"});
+        }
         next();
     } catch (error) {
         return res.status(403).json({message: "Invalid or Expired Token"});
-        
     }
 }
 

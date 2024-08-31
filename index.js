@@ -1,10 +1,10 @@
 const express = require('express');
-const routes = require('../routes');
+const routes = require('./routes');
 const bodyParser = require('body-parser');
-const serverless = require("serverless-http");
+// const serverless = require("serverless-http");
 const app = express();
 require('dotenv').config();
-require('../config/db');
+require('./config/db');
 
 
 const PORT = 8080;
@@ -13,11 +13,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // Add this line
 
 
-app.use(`/.netlify/functions/app`, routes); 
+// app.use(`/.netlify/functions/app`, routes); 
 
-module.exports.handler = serverless(app);
+// module.exports.handler = serverless(app);
 
-
+app.use('/api/v1/', routes);
 
 app.listen(PORT, () => {
     console.log(`Server is up and running of PORT: ${PORT}`);

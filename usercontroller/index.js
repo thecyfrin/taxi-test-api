@@ -1,6 +1,7 @@
 const UserModel = require('../models/usermodel');
 
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 module.exports = {
     // validate req.body
@@ -10,9 +11,9 @@ module.exports = {
     // return response to client
     registerUser: async (req,res) => {
         const userModel = new UserModel(req.body);
+        userModel.password = await bcrypt.hash(req.body.password, 10);
 
         try {
-            
             const response = await userModel.save();
             response.password = undefined;
             return res.status(201).json({ message: 'success', data: response });
@@ -28,7 +29,7 @@ module.exports = {
                 return res.status(401).json({ message: 'email-not-found', data: "Insert a valid email address" });
             }
 
-            const isPassEqual = req.body.password === user.password;
+            const isPassEqual = await bcrypt.compare(req.body.password, user.password);
             if(!isPassEqual) {
                 return res.status(401).json({ message: 'wrong-password', data: "Enter correct password" });
             }
