@@ -8,23 +8,26 @@ const app = express();
 require('dotenv').config();
 require('../config/db');
 
-
-const PORT = 8080;
-
+// Body parser middleware
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); // Add this line
+app.use(bodyParser.urlencoded({ extended: true }));
+const PORTNUMBER = process.env.PORT || 8080;
 
 
-app.use(`/.netlify/functions/app`, routes); 
+// Define the routes for admin and root
+app.use('/api/v1/admin/', adminRoutes); // Admin routes (without the Netlify-specific prefix)
+app.use('/api/v1/', routes);           // General routes
+
+// Serve static files
 app.use('/uploads', express.static('src/constructing'));
-app.use('/admin/', adminRoutes)
 
+// Export the handler for serverless
 module.exports.handler = serverless(app);
 
+// Local server (useful for local development)
+if (process.env.NODE_ENV !== 'production') {
 
-
-app.listen(PORT, () => {
-    console.log(`Server is up and running of PORT: ${PORT}`);
-})
-
-
+    app.listen(PORTNUMBER, () => {
+        console.log(`Server is up and running on PORT: ${PORTNUMBER}`);
+    });
+}

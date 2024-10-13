@@ -5,6 +5,8 @@ const { ensureAdminPower, ensureAdmin } = require('../modules/utils/auth');
 const {  validateDriverId,  inviteAdminValidation, createAdminValidation, subsModificationValidation, reviewModificationValidation } = require('../modules/utils/adminValidation');
 const { checkNotificationInput } = require('../modules/utils/notificationValidation');
 const { notifyUser } = require('../modules/notification');
+const DriverModel = require('../models/driver-model');
+const DriverPass = require('../models/panel-models/driver-pass');
 
 
 
@@ -14,6 +16,27 @@ const adminRoutes = express.Router();
 adminRoutes.get("/", (req, res) => {
     console.log("hit this");
     res.status(201).json({admin: "is-here"});
+})
+
+adminRoutes.get('/coloume', async (req, res) => {
+    try {
+        const drivers = await DriverModel.countDocuments({});
+
+        const subs = await DriverModel.countDocuments({isSubscribed: true});
+
+        const passData = (await DriverPass.find({})).at(0);
+
+        const dataObject = {
+            subscribedDrivers: subs,
+            totalDrivers: drivers,
+            passData: passData,
+        }
+
+        return res.status(200).json({success: true, data: dataObject});
+
+    } catch (error) {
+        return res.status(500).json({ success : false, data: error  });
+    }
 })
 
 adminRoutes.get('/dashboard', ensureAdmin, getDashboardData);
