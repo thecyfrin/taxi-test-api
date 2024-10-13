@@ -1,6 +1,5 @@
 const  mongoose  = require("mongoose");
 const Schema = mongoose.Schema;
-var SchemaTypes = mongoose.Schema.Types;
 
 const PaymentSchema = new Schema({
     splitFare: {
