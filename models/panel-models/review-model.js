@@ -24,6 +24,9 @@ const ReviewSchema = new Schema({
     message: {
         type: String
     },
+    country:{
+        type: String
+    },
     createdAt: {
         type: Date,
         default: Date.now(),

@@ -1,13 +1,10 @@
 const express = require('express');
 const { userLoginValidate } = require('../modules/utils/userValidation');
-const { loginAdmin, addNewAdmin, getAllAdmins, getDrivers, getRiders, getAllTrips, getSubscribedDrivers, getDocumentsForVerification, getApprovedDrivers, approveDriver, rejectDrivers, getRejectedDrivers, createAdmin, getActiveTrips, getDashboardData, getDriverManagementData, getSubscriptionScreenData, modifySubscription, showAllReviews, deleteReview, updateReview, getRiderTripHistory, getDriverTripHistory, getTransactions, refreshAdminToken } = require('../modules/usercontroller/admin-controller');
+const { loginAdmin, addNewAdmin, getAllAdmins, getDrivers, getRiders, getAllTrips, getSubscribedDrivers, getDocumentsForVerification, getApprovedDrivers, approveDriver, rejectDrivers, getRejectedDrivers, createAdmin, getActiveTrips, getDashboardData, getDriverManagementData, getSubscriptionScreenData, modifySubscription, showAllReviews, deleteReview, updateReview, getRiderTripHistory, getDriverTripHistory, getTransactions, refreshAdminToken, getAnalyticsByCountry } = require('../modules/usercontroller/admin-controller');
 const { ensureAdminPower, ensureAdmin } = require('../modules/utils/auth');
 const {  validateDriverId,  inviteAdminValidation, createAdminValidation, subsModificationValidation, reviewModificationValidation, adminRefreshValidate } = require('../modules/utils/adminValidation');
 const { checkNotificationInput } = require('../modules/utils/notificationValidation');
 const { notifyUser } = require('../modules/notification');
-const DriverModel = require('../models/driver-model');
-const DriverPass = require('../models/panel-models/driver-pass');
-
 
 
 const adminRoutes = express.Router();
@@ -18,26 +15,6 @@ adminRoutes.get("/", (req, res) => {
     res.status(201).json({admin: "is-here"});
 })
 
-adminRoutes.get('/coloume', async (req, res) => {
-    try {
-        const drivers = await DriverModel.countDocuments({});
-
-        const subs = await DriverModel.countDocuments({isSubscribed: true});
-
-        const passData = (await DriverPass.find({})).at(0);
-
-        const dataObject = {
-            subscribedDrivers: subs,
-            totalDrivers: drivers,
-            passData: passData,
-        }
-
-        return res.status(200).json({success: true, data: dataObject});
-
-    } catch (error) {
-        return res.status(500).json({ success : false, data: error  });
-    }
-})
 
 adminRoutes.get('/dashboard', ensureAdmin, getDashboardData);
 adminRoutes.get('/driver-management', ensureAdmin, getDriverManagementData);
@@ -84,6 +61,10 @@ adminRoutes.get('/transactions', ensureAdmin, getTransactions);
 adminRoutes.get('/dispatch-route-management')
 adminRoutes.get('/driver-current/:driverId')
 adminRoutes.post('/deploy-driver/:driverId')
+
+
+//Analytics and Reporting
+adminRoutes.get('/analytics/:country', ensureAdmin, getAnalyticsByCountry)
 
 
 // TRIPS

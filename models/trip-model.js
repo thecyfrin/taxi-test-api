@@ -55,6 +55,9 @@ const TripSchema = new Schema({
     tripNote: {
         type: String,
     },
+    country: {
+        type: String,
+    },
     pickup: {
         main_text: String,
         pickupLat: String,

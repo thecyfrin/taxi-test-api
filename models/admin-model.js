@@ -18,6 +18,9 @@ const AdminSchema = new Schema({
     password: {
         type: String,
     },
+    country: {
+        type: String,
+    },
     canRead: {
         type: Boolean,
         default: true,

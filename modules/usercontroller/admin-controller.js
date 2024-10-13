@@ -130,7 +130,6 @@ module.exports = {
     getAllAdmins: async (req, res) => {
         try {
             const admins = await AdminModel.find({}, {password: 0});
-            console.log(admins.length);
             
             return res.status(200).json({
                 success : true, data: admins.map(function (rz){
@@ -288,7 +287,6 @@ module.exports = {
 
             const pending = await DriverModel.countDocuments({driverAccepted: false});
             
-            console.log(pending);
 
             const dataObject = {
                 totalDrivers: drivers,
@@ -397,7 +395,6 @@ module.exports = {
             const drivers = await DriverModel.find({driverAccepted: false});
             
 
-            console.log(drivers.length);
             return res.status(200).json({
                 success : true, data: drivers.map(function (rz){
                     return {
@@ -427,7 +424,6 @@ module.exports = {
         try {
             const drivers = await DriverModel.find({driverAccepted: true});
         
-            console.log(drivers.length);
             return res.status(200).json({
                 success : true, data: drivers.map(function (rz){
                     return {
@@ -585,7 +581,6 @@ module.exports = {
 
     updateReview: async (req, res) => {
         try{
-            console.log(req.params.reviewId);
             const review = await ReviewModel.findOne({reviewId: req.params.reviewId});
 
             if(!review) {
@@ -646,8 +641,7 @@ module.exports = {
                 }
             });
 
-            console.log(total.toFixed(2));
-            console.log(withdrawal.toFixed(2));
+
 
 
             if(transaction) {
@@ -662,6 +656,41 @@ module.exports = {
 
 
          } catch (error) {
+            return res.status(500).json({ success : false, data: error  });
+        }
+    },
+
+    getAnalyticsByCountry: async (req, res) => {
+        try{
+            const country = req.params.country.toUpperCase();
+
+            const totalTrips = await TripModel.countDocuments({country: country});
+            const completedTrips = await TripModel.countDocuments({country: country, isTripFinished: true});
+            const cancelledTrips = await TripModel.countDocuments({country: country, isTripCancelled: true});
+            
+            const allReviews = await ReviewModel.find({country: country});
+
+            const formattedReviews = [];
+
+            allReviews.forEach(review => {
+                const ind = {
+                    stars: review.stars, 
+                    message: review.message,
+                    createdAt: review.createdAt
+                };
+
+                formattedReviews.push(ind);
+            });
+
+            return res.status(200).json({
+                success: true, 
+                totalTrips: totalTrips, 
+                completedTrips: completedTrips, 
+                cancelledTrips: cancelledTrips, 
+                reviews: formattedReviews,
+            })
+
+        }  catch (error) {
             return res.status(500).json({ success : false, data: error  });
         }
     }
