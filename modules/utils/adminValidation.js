@@ -46,6 +46,20 @@ const subsModificationValidation = (req, res, next) => {
     next();
 }
 
+const adminRefreshValidate = (req, res, next) => {
+    
+    const schema = Joi.object({
+        refreshToken: Joi.string().required(),
+        email: Joi.string().required(),
+    });
+
+    const {err, value} = schema.validate(req.body);
+    if(err) {
+        return res.status(400).json({success : false, message: "invalid-token", err});
+    } 
+    next();
+}
+
 const reviewModificationValidation = (req, res, next) => {
     const schema = Joi.object({
         message: Joi.string().required(),  
@@ -76,5 +90,5 @@ const validateDriverId = (req, res, next) => {
 
 
 module.exports = {
-    inviteAdminValidation, createAdminValidation, validateDriverId, subsModificationValidation, reviewModificationValidation,
+    inviteAdminValidation, createAdminValidation, validateDriverId, subsModificationValidation, reviewModificationValidation, adminRefreshValidate
 }

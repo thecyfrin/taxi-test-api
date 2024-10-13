@@ -1,8 +1,8 @@
 const express = require('express');
 const { userLoginValidate } = require('../modules/utils/userValidation');
-const { loginAdmin, addNewAdmin, getAllAdmins, getDrivers, getRiders, getAllTrips, getSubscribedDrivers, getDocumentsForVerification, getApprovedDrivers, approveDriver, rejectDrivers, getRejectedDrivers, createAdmin, getActiveTrips, getDashboardData, getDriverManagementData, getSubscriptionScreenData, modifySubscription, showAllReviews, deleteReview, updateReview, getRiderTripHistory, getDriverTripHistory, getTransactions } = require('../modules/usercontroller/admin-controller');
+const { loginAdmin, addNewAdmin, getAllAdmins, getDrivers, getRiders, getAllTrips, getSubscribedDrivers, getDocumentsForVerification, getApprovedDrivers, approveDriver, rejectDrivers, getRejectedDrivers, createAdmin, getActiveTrips, getDashboardData, getDriverManagementData, getSubscriptionScreenData, modifySubscription, showAllReviews, deleteReview, updateReview, getRiderTripHistory, getDriverTripHistory, getTransactions, refreshAdminToken } = require('../modules/usercontroller/admin-controller');
 const { ensureAdminPower, ensureAdmin } = require('../modules/utils/auth');
-const {  validateDriverId,  inviteAdminValidation, createAdminValidation, subsModificationValidation, reviewModificationValidation } = require('../modules/utils/adminValidation');
+const {  validateDriverId,  inviteAdminValidation, createAdminValidation, subsModificationValidation, reviewModificationValidation, adminRefreshValidate } = require('../modules/utils/adminValidation');
 const { checkNotificationInput } = require('../modules/utils/notificationValidation');
 const { notifyUser } = require('../modules/notification');
 const DriverModel = require('../models/driver-model');
@@ -59,6 +59,7 @@ adminRoutes.post('/login', userLoginValidate, loginAdmin);
 adminRoutes.post('/invite-new-admin', ensureAdminPower, inviteAdminValidation, addNewAdmin);
 adminRoutes.post('/register', createAdminValidation, createAdmin);
 adminRoutes.get('/admins', ensureAdmin, getAllAdmins);
+adminRoutes.post('/refresh-token', adminRefreshValidate, refreshAdminToken);
 
 // DRIVER
 adminRoutes.get('/drivers',  ensureAdmin, getDrivers);

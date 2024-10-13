@@ -52,6 +52,9 @@ const DriverSchema = new Schema({
         type: String,
         required: true,
     },
+    country: {
+        type: String,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

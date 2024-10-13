@@ -39,6 +39,9 @@ const RiderSchema = new Schema({
         type: String,
         required: true,
     },
+    country: {
+        type: String,
+    },
     gender: {
         type: String,
         required: true,

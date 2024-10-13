@@ -26,6 +26,8 @@ routes.post('/register', userRegisterValidate, registerRider);
 
 routes.post('/complete-registration', upload('profiles').single('image'), completeRegistrationValidate, completeRegistration);
 
+routes.post('/:riderId/set-country');
+
 routes.post('/login', userLoginValidate, loginRider);
 
 routes.post('/refresh-token', userRefreshValidate, refreshRiderToken);
@@ -92,6 +94,9 @@ routes.post(
   completeDriverRegistration
 );
 
+routes.post('/:driverId/set-country');
+
+
 
 routes.post('/login-driver', userLoginValidate, loginDriver);
 
@@ -117,3 +122,11 @@ routes.post('/create-trip', tripCreateValidation, createTrip)
 
 
 module.exports = routes;
+
+
+
+
+
+
+
+

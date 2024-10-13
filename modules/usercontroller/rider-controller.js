@@ -128,14 +128,16 @@ module.exports = {
             const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {expiresIn : '1d'});
             const refreshToken = jwt.sign(tokenObject, process.env.REFRESH_SECRET, {expiresIn: '30d'});
 
+
             const refreshTokenExpiration = new Date();
             refreshTokenExpiration.setDate(refreshTokenExpiration.getDate() + 30);
-            
+
             rider.refreshToken = refreshToken;
             rider.refreshTokenExpiration = refreshTokenExpiration;
 
             const response = await rider.save();
             if(response.isModified) {
+
                 return res.status(201).json({ success : true, jwtToken, refreshToken, tokenObject });
             } else {
                 return res.status(500).json({success : false, data: 'updating-refresh-token-error'});

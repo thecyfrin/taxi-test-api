@@ -182,6 +182,49 @@ module.exports = {
         }
     },
 
+    refreshAdminToken: async (req, res) => {
+        try {
+            const admin = await AdminModel.findOne({email: req.body.email});
+            if(!admin) {
+                return res.status(401).json({ success : false, message: 'admin-not-found' });
+            }
+            const expirationDate = new Date(admin.refreshTokenExpiration); 
+            const isExpired = new Date() > expirationDate.getTime();
+
+            const refreshTokenEqual = req.body.refreshToken === admin.refreshToken;
+            if(!refreshTokenEqual) {
+                return res.status(403).json({ success : false, message: 'refresh-token-invalid'});
+            }
+
+            if (isExpired) {
+                admin.refreshToken = "";
+                admin.refreshTokenExpiration = null;
+
+                const response = await admin.save();
+                if(response.isModified) {
+                    return res.status(403).json({ success : false, message: 'refresh-token-expired' });
+                } else {
+                    return res.status(500).json({success : false, message: 'updating-refresh-token-error'});
+                }
+            }
+            const tokenObject = {
+                _id : admin._id,
+                adminId: admin.adminId,
+                firstName : admin.firstName,
+                lastName : admin.lastName,
+                email : admin.email,
+                gender : admin.gender,
+                phone : admin.phone
+            }
+
+            const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {expiresIn : '1d'});
+            return res.status(201).json({ success : true, jwtToken, tokenObject });
+        } catch(error) {
+            return res.status(500).json({ success : false, data: error  });
+        }
+    },
+
+
     getDriverTripHistory: async (req, res) => {
         try {
             const trips = await TripModel.find({driverId: req.params.driverId});
