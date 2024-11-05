@@ -11,7 +11,7 @@ module.exports = {
                 subject: 'WELCOME TO COCHEVIA',
                 html: `<html>
                         <body>
-                            <p> Verify you email </p> <p style:"color:tomato; font-size: 25px; letter-spacing: 2px;"><b>${otpCode}</b></p>
+                            <p> Verify your email </p> <p style:"color:tomato; font-size: 25px; letter-spacing: 2px;"><b>${otpCode}</b></p>
                             <p> This code expires in ${duration} hours(s)</b>.</p>
                             </body>
                         </html>`, 
@@ -31,7 +31,7 @@ module.exports = {
             subject: 'WELCOME TO COCHEVIA FAMILY',
             html: `<html>
                     <body>
-                        <p> Verify you email to join us </p> <p style:"color:tomato; font-size: 25px; letter-spacing: 2px;"><b>${otpCode}</b></p>
+                        <p> Verify your email to join us </p> <p style:"color:tomato; font-size: 25px; letter-spacing: 2px;"><b>${otpCode}</b></p>
                         <p> This code expires in ${duration} hours(s)</b>.</p>
                         </body>
                     </html>`, 

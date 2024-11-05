@@ -94,6 +94,20 @@ const userRefreshValidate = (req, res, next) => {
     next();
 }
 
+const resendOtpValidate = (req, res, next) => {
+    const schema = Joi.object({
+        email: Joi.string().required(),
+        
+    });
+
+    const {err, value} = schema.validate(req.body);
+
+    if(err) {
+        return res.status(400).json({success : false, message: "invalid-otp", err});
+    } 
+    next();
+}
+
 const userOtpValidate = (req, res, next) => {
     const schema = Joi.object({
         email: Joi.string().required(),
@@ -107,6 +121,9 @@ const userOtpValidate = (req, res, next) => {
     } 
     next();
 }
+
+
+
 
 const userInfoChangeValidate = (req, res, next) => {
     const schema = Joi.object({
@@ -141,5 +158,5 @@ const userPasswordChangeValidate = (req, res, next) => {
 
 
 module.exports = {
-    userRegisterValidate, completeRegistrationValidate, completeDriverRegistrationValidate, userLoginValidate, userRefreshValidate, userOtpValidate, userInfoChangeValidate, userPasswordChangeValidate
+    userRegisterValidate, completeRegistrationValidate, completeDriverRegistrationValidate, userLoginValidate, userRefreshValidate, resendOtpValidate, userOtpValidate, userInfoChangeValidate, userPasswordChangeValidate
 }

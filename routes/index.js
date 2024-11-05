@@ -2,11 +2,11 @@ const express = require('express');
 const path = require('path');
 
 
-const { userRegisterValidate, userLoginValidate,  userRefreshValidate, userOtpValidate, userInfoChangeValidate, userPasswordChangeValidate, completeRegistrationValidate, completeDriverRegistrationValidate } = require('../modules/utils/userValidation');
+const { userRegisterValidate, userLoginValidate,  userRefreshValidate, userOtpValidate, userInfoChangeValidate, userPasswordChangeValidate, completeRegistrationValidate, completeDriverRegistrationValidate, resendOtpValidate } = require('../modules/utils/userValidation');
 const { ensureAuthenticated } = require('../modules/utils/auth');
 const { notifyUser } = require('../modules/notification');
-const { registerRider, loginRider, refreshRiderToken,  verifyOtp, updateRiderInfo,  changeRiderPassword, completeRegistration } = require('../modules/usercontroller/rider-controller');
-const { registerDriver, loginDriver, refreshDriverToken,  verifyDriverOtp, updateDriverInfo, changeDriverPassword, completeDriverRegistration } = require('../modules/usercontroller/driver-controller');
+const { registerRider, loginRider, refreshRiderToken,   updateRiderInfo,  changeRiderPassword, completeRegistration, verifyRiderOtp, resendRiderOtp } = require('../modules/usercontroller/rider-controller');
+const { registerDriver, loginDriver, refreshDriverToken,  verifyDriverOtp, updateDriverInfo, changeDriverPassword, completeDriverRegistration, resendDriverOtp } = require('../modules/usercontroller/driver-controller');
 const { upload, multi_upload } = require('../modules/utils/upload-photo');
 const { tripCreateValidation } = require('../modules/utils/tripValidation');
 const { createTrip } = require('../modules/trip-controller');
@@ -20,6 +20,7 @@ routes.get("/", (req, res) => {
     console.log("it's called");
 });
 
+
 //Authentication - Customer
 
 routes.post('/register', userRegisterValidate, registerRider);
@@ -32,7 +33,9 @@ routes.post('/login', userLoginValidate, loginRider);
 
 routes.post('/refresh-token', userRefreshValidate, refreshRiderToken);
 
-routes.post('/otp-rider', userOtpValidate, verifyOtp);
+routes.post('/otp-rider', userOtpValidate, verifyRiderOtp);
+
+routes.post('/resendOtp-rider', resendOtpValidate, resendRiderOtp);
 
 routes.post('/update-info', ensureAuthenticated, userInfoChangeValidate, updateRiderInfo);
 
@@ -101,6 +104,8 @@ routes.post('/:driverId/set-country');
 routes.post('/login-driver', userLoginValidate, loginDriver);
 
 routes.post('/refresh-driver-token', userRefreshValidate, refreshDriverToken);
+
+routes.post('/resendOtp-driver', resendOtpValidate, resendDriverOtp);
 
 routes.post('/otp-driver', userOtpValidate, verifyDriverOtp);
 

@@ -16,14 +16,14 @@ const ipaddress = process.env.IP_ADDRESS || "localhost";
 const PORTNUMBER = process.env.PORT || 8080;
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); // Add this line
+app.use(bodyParser.urlencoded({ extended: true })); 
 
 
 // app.use(`/.netlify/functions/app`, routes); 
 
 // module.exports.handler = serverless(app);
 app.use('/uploads', express.static('src/constructing'));
-app.use('/admin/', adminRoutes)
+app.use('/admin/', adminRoutes);
 app.use('/api/v1/', routes);
 
 // const sslServer = https.createServer({

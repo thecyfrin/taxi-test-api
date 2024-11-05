@@ -290,6 +290,27 @@ module.exports = {
         }
     },
 
+    resendDriverOtp: async (req, res) => {
+        try {
+            const driver = await DriverModel.findOne({email: req.body.email});
+
+            if(!driver) {
+                return res.status(401).json({success : false,  message: 'email-not-found'});
+            }
+            const generatedOtp = await generateOtp();
+            driver.otpCode = await hashData(generatedOtp);
+
+            await driver.save();
+            await sendDriverOtp({ email: driver.email, firstName: driver.firstName, otpCode: generatedOtp });    
+            return res.status(201).json({ success : true, data: "otp-sent" });
+               
+    
+            
+        } catch (error) {
+            return res.status(500).json({ success : false, data: error  });
+        }
+    },
+
 
     verifyDriverOtp: async (req, res) => {
         try {

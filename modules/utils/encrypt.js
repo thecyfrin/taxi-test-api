@@ -10,4 +10,6 @@ const compareHashData = async (first, second) => {
     return isSame;
 }
 
+
+
 module.exports = {hashData, compareHashData};

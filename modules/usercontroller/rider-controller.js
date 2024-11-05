@@ -201,10 +201,13 @@ module.exports = {
                     _id : rider._id,
                     riderId: rider.riderId,
                     isEmailVerified : rider.isEmailVerified,
+                    fullName: rider.fullName,
                     firstName : rider.firstName,
                     lastName : rider.lastName,
                     email : rider.email,
+                    profilePicture: rider.profilePicture,
                     gender : rider.gender,
+                    state: rider.state,
                     phone : rider.phone
                 }
                 return res.status(201).json({ success : true, tokenObject });
@@ -247,11 +250,14 @@ module.exports = {
             const tokenObject = {
                 _id : rider._id,
                 riderId: rider.riderId,
-
+                isEmailVerified : rider.isEmailVerified,
+                fullName: rider.fullName,
                 firstName : rider.firstName,
                 lastName : rider.lastName,
                 email : rider.email,
+                profilePicture: rider.profilePicture,
                 gender : rider.gender,
+                state: rider.state,
                 phone : rider.phone
             }
 
@@ -263,9 +269,29 @@ module.exports = {
         }
     },
 
+    resendRiderOtp: async (req, res) => {
+        try {
+            const rider = await RiderModel.findOne({email: req.body.email});
+
+            if(!rider) {
+                return res.status(401).json({success : false,  message: 'email-not-found'});
+            }
+            const generatedOtp = await generateOtp();
+            rider.otpCode = await hashData(generatedOtp);
+
+            await rider.save();
+            await sendOtp({ email: rider.email, firstName: rider.firstName, otpCode: generatedOtp });    
+            return res.status(201).json({ success : true, data: "otp-sent" });
+               
+    
+            
+        } catch (error) {
+            return res.status(500).json({ success : false, data: error  });
+        }
+    },
 
     
-    verifyOtp: async (req, res) => {
+    verifyRiderOtp: async (req, res) => {
         try {
             const rider = await RiderModel.findOne({email: req.body.email});
 
@@ -285,7 +311,6 @@ module.exports = {
 
             const response = await rider.save();
             if(response.isModified) {
-               
                 return res.status(201).json({ success : true, message: 'email-verified' });
             } else {
                 return res.status(500).json({success : false, message: 'updating-refresh-token-error'});
