@@ -1,9 +1,9 @@
 const express = require('express');
-const routes = require('../routes');
 const bodyParser = require('body-parser');
 const serverless = require("serverless-http");
-const adminRoutes = require('../routes/admin-routes');
 const cors = require('cors');
+const adminRoutes = require('../routes/admin-routes');
+const routes = require('../routes');
 
 
 const app = express();
@@ -27,5 +27,5 @@ module.exports.handler = serverless(app);
 
 // Local server (useful for local development)
 app.use(cors({
-    origin: 'https://euphonious-beignet-bce7c4.netlify.app'
+    origin: 'https://cochevia.netlify.app/'
 }));
