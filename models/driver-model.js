@@ -81,7 +81,8 @@ const DriverSchema = new Schema({
         id: String,
         carName: String,
         carModel: String,
-        vinNum: String
+        vinNum: String,
+        vehicleTier: String,
     }],
     ratingStar: {
         type: Number,

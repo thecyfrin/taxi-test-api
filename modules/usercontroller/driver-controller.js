@@ -67,6 +67,7 @@ module.exports = {
             vehicle.carModel = req.body.vehicleModel;
             vehicle.vinNum = req.body.vehicleVin;
             
+            
             driver.driverDetails.profilePicture = req.body.profilePicture;
             driver.driverDetails.dlFront = req.body.dlFront;
             driver.driverDetails.dlBack = imageUrl;

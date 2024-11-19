@@ -2,7 +2,7 @@ const express = require('express');
 const { userLoginValidate } = require('../modules/utils/userValidation');
 const { loginAdmin, addNewAdmin, getAllAdmins, getDrivers, getRiders, getAllTrips, getSubscribedDrivers, getDocumentsForVerification, getApprovedDrivers, approveDriver, rejectDrivers, getRejectedDrivers, createAdmin, getActiveTrips, getDashboardData, getDriverManagementData, getSubscriptionScreenData, modifySubscription, showAllReviews, deleteReview, updateReview, getRiderTripHistory, getDriverTripHistory, getTransactions, refreshAdminToken, getAnalyticsByCountry } = require('../modules/usercontroller/admin-controller');
 const { ensureAdminPower, ensureAdmin } = require('../modules/utils/auth');
-const {  validateDriverId,  inviteAdminValidation, createAdminValidation, subsModificationValidation, reviewModificationValidation, adminRefreshValidate } = require('../modules/utils/adminValidation');
+const {  validateDriverId,  inviteAdminValidation, createAdminValidation, subsModificationValidation, reviewModificationValidation, adminRefreshValidate, validateDriverAccept } = require('../modules/utils/adminValidation');
 const { checkNotificationInput } = require('../modules/utils/notificationValidation');
 const { notifyUser } = require('../modules/notification');
 
@@ -42,7 +42,7 @@ adminRoutes.post('/refresh-token', adminRefreshValidate, refreshAdminToken);
 adminRoutes.get('/drivers',  ensureAdmin, getDrivers);
 adminRoutes.get('/driver-trip-history/:driverId', ensureAdmin, getDriverTripHistory)
 adminRoutes.get('/drivers-under-review', ensureAdmin, getDocumentsForVerification);
-adminRoutes.post('/approve-driver', ensureAdminPower, validateDriverId, approveDriver);
+adminRoutes.post('/approve-driver', ensureAdminPower, validateDriverAccept, approveDriver);
 adminRoutes.post('/reject-driver', ensureAdminPower, validateDriverId, rejectDrivers);
 adminRoutes.get('/all-approved-drivers/', ensureAdmin, getApprovedDrivers);
 adminRoutes.get('/all-rejected-drivers/', ensureAdmin, getRejectedDrivers);

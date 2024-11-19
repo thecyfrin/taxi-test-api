@@ -74,6 +74,21 @@ const reviewModificationValidation = (req, res, next) => {
 }
 
 
+const validateDriverAccept = (req, res, next) => {
+    
+    const schema = Joi.object({
+        driverId: Joi.string().required(),  
+        vehicleId: Joi.string().required(),
+        vehicleTier: Joi.string().required(),
+    });
+    
+    const {err, value} = schema.validate(req.body);
+    if(err) {
+        return res.status(400).json({success : false, data :  err});
+    } 
+    next();
+}
+
 const validateDriverId = (req, res, next) => {
     
     const schema = Joi.object({
@@ -90,5 +105,5 @@ const validateDriverId = (req, res, next) => {
 
 
 module.exports = {
-    inviteAdminValidation, createAdminValidation, validateDriverId, subsModificationValidation, reviewModificationValidation, adminRefreshValidate
+    inviteAdminValidation, createAdminValidation, validateDriverAccept, validateDriverId, subsModificationValidation, reviewModificationValidation, adminRefreshValidate
 }

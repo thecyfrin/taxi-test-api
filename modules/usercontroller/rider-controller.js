@@ -1,324 +1,386 @@
-const RiderModel = require('../../models/rider-model');
+const RiderModel = require("../../models/rider-model");
 
-const jwt = require('jsonwebtoken');
-const path = require('path');
+const jwt = require("jsonwebtoken");
+const path = require("path");
 
-
-
-const { generateUUID, generateOtp, generateFiveCharOtp } = require('../utils/utils-class');
-const { sendOtp } = require('../email-controller');
-const { compareHashData, hashData } = require('../utils/encrypt');
-
+const {
+	generateUUID,
+	generateOtp,
+	generateFiveCharOtp,
+} = require("../utils/utils-class");
+const { sendOtp } = require("../email-controller");
+const { compareHashData, hashData } = require("../utils/encrypt");
 
 module.exports = {
-    registerRider: async (req,res) => {
-        const rider = await RiderModel.findOne({email: req.body.email});
-            if(rider) {
-                return res.status(401).json({ success : false,  message: 'email-already-registered' });
-            }
+	registerRider: async (req, res) => {
+		try {
+			const rider = await RiderModel.findOne({ email: req.body.email });
+			if (rider) {
+				return res
+					.status(401)
+					.json({ success: false, message: "email-already-registered" });
+			}
 
-        const id = generateUUID();
-        const generatedOtp = await generateOtp();
+			const id = generateUUID();
+			const generatedOtp = await generateOtp();
 
-        const newRider = new RiderModel(req.body);
-        newRider.password = await hashData(req.body.password);
+			const newRider = new RiderModel(req.body);
+			newRider.password = await hashData(req.body.password);
 
-        newRider.riderId = id;
-        newRider.otpCode = await hashData(generatedOtp);
+			newRider.riderId = id;
+			newRider.otpCode = await hashData(generatedOtp);
 
-        try {
-            const response = await newRider.save();
-            await sendOtp({ email: req.body.email, firstName: req.body.firstName, otpCode: generatedOtp });
-            response.password = undefined;
-            response.otpCode = undefined;
-            return res.status(201).json({ success : true, data: response });
-           
-        } catch (error) {
-            return res.status(500).json({ success : false, data: error  });
-        }
-    },
+			const response = await newRider.save();
+			await sendOtp({
+				email: req.body.email,
+				firstName: req.body.firstName,
+				otpCode: generatedOtp,
+			});
+			response.password = undefined;
+			response.otpCode = undefined;
+			return res.status(201).json({ success: true, data: response });
+		} catch (error) {
+			return res.status(500).json({ success: false, data: error });
+		}
+	},
 
-    completeRegistration: async (req,res) => {
-        try {
-            const rider = await RiderModel.findOne({ email: req.body.email});
-            
-            if(!rider) {
-                return res.status(401).json({ success : false,  message: 'email-not-found' });
-            }
+	completeRegistration: async (req, res) => {
+		try {
+			const rider = await RiderModel.findOne({ email: req.body.email });
 
-            if (!req.file) {
-                return res.status(405).json({ success : false,  message: 'image-upload-failed' });
-            }
+			if (!rider) {
+				return res
+					.status(401)
+					.json({ success: false, message: "email-not-found" });
+			}
 
-            const folderName = path.dirname(req.file.path).split(path.sep).pop();  // Extract last folder
-            const fileName = path.basename(req.file.path);  // Extract the file name
+			if (!req.file) {
+				return res
+					.status(405)
+					.json({ success: false, message: "image-upload-failed" });
+			}
 
+			const folderName = path.dirname(req.file.path).split(path.sep).pop(); // Extract last folder
+			const fileName = path.basename(req.file.path); // Extract the file name
 
-            const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${folderName}/${fileName}`;
-                        
-            rider.profilePicture = imageUrl;
-            rider.state = req.body.state;
-            rider.fullName = req.body.fullName;
+			const imageUrl = `${req.protocol}://${req.get(
+				"host"
+			)}/uploads/${folderName}/${fileName}`;
 
-            await rider.save();
+			rider.profilePicture = imageUrl;
+			rider.state = req.body.state;
+			rider.fullName = req.body.fullName;
 
-            const tokenObject = {
-                _id : rider._id,
-                riderId: rider.riderId,
-                isEmailVerified : rider.isEmailVerified,
-                fullName: rider.fullName,
-                firstName : rider.firstName,
-                lastName : rider.lastName,
-                email : rider.email,
-                profilePicture: rider.profilePicture,
-                gender : rider.gender,
-                state: rider.state,
-                phone : rider.phone,
-                createdAt: rider.createdAt
-            }
+			await rider.save();
 
-            const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {expiresIn : '1d'});
-            const refreshToken = jwt.sign(tokenObject, process.env.REFRESH_SECRET, {expiresIn: '30d'});
+			const tokenObject = {
+				_id: rider._id,
+				riderId: rider.riderId,
+				isEmailVerified: rider.isEmailVerified,
+				fullName: rider.fullName,
+				firstName: rider.firstName,
+				lastName: rider.lastName,
+				email: rider.email,
+				profilePicture: rider.profilePicture,
+				gender: rider.gender,
+				state: rider.state,
+				phone: rider.phone,
+				createdAt: rider.createdAt,
+			};
 
-            const refreshTokenExpiration = new Date();
-            refreshTokenExpiration.setDate(refreshTokenExpiration.getDate() + 30);
-            
-            rider.refreshToken = refreshToken;
-            rider.refreshTokenExpiration = refreshTokenExpiration;
-            
-            const response = await rider.save();
-            if(response.isModified) {
-                return res.status(201).json({ success : true, jwtToken, refreshToken, tokenObject });
-            } else {
-                return res.status(500).json({success : false, message: 'updating-refresh-token-error'});
-            }
+			const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {
+				expiresIn: "1d",
+			});
+			const refreshToken = jwt.sign(tokenObject, process.env.REFRESH_SECRET, {
+				expiresIn: "30d",
+			});
 
-        } catch (error) {
-            return res.status(500).json({ success : false,  data: error  });
-        }
-    },
+			const refreshTokenExpiration = new Date();
+			refreshTokenExpiration.setDate(refreshTokenExpiration.getDate() + 30);
 
-    loginRider: async (req,res) => {
-        try {
-            const rider = await RiderModel.findOne({email: req.body.email});
-            if(!rider) {
-                return res.status(401).json({ success : false,  message: 'email-not-found' });
-            }
+			rider.refreshToken = refreshToken;
+			rider.refreshTokenExpiration = refreshTokenExpiration;
 
-            const isPassEqual = await compareHashData(req.body.password, rider.password);
+			const response = await rider.save();
+			if (response.isModified) {
+				return res
+					.status(201)
+					.json({ success: true, jwtToken, refreshToken, tokenObject });
+			} else {
+				return res
+					.status(500)
+					.json({ success: false, message: "updating-refresh-token-error" });
+			}
+		} catch (error) {
+			return res.status(500).json({ success: false, data: error });
+		}
+	},
 
-            if(!isPassEqual) {
-                return res.status(401).json({ success : false,  message: 'wrong-password' });
-            }
+	loginRider: async (req, res) => {
+		console.log("I am here");
 
-            const tokenObject = {
-                _id : rider._id,
-                riderId: rider.riderId,
-                isEmailVerified : rider.isEmailVerified,
-                fullName: rider.fullName,
-                firstName : rider.firstName,
-                lastName : rider.lastName,
-                email : rider.email,
-                profilePicture: rider.profilePicture,
-                gender : rider.gender,
-                state: rider.state,
-                phone : rider.phone
-            }
+		try {
+			const rider = await RiderModel.findOne({ email: req.body.email });
+			if (!rider) {
+				return res
+					.status(401)
+					.json({ success: false, message: "email-not-found" });
+			}
+			const isPassEqual = await compareHashData(
+				req.body.password,
+				rider.password
+			);
 
-            const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {expiresIn : '1d'});
-            const refreshToken = jwt.sign(tokenObject, process.env.REFRESH_SECRET, {expiresIn: '30d'});
+			if (!isPassEqual) {
+				return res
+					.status(401)
+					.json({ success: false, message: "wrong-password" });
+			}
 
+			const tokenObject = {
+				_id: rider._id,
+				riderId: rider.riderId,
+				isEmailVerified: rider.isEmailVerified,
+				fullName: rider.fullName,
+				firstName: rider.firstName,
+				lastName: rider.lastName,
+				email: rider.email,
+				profilePicture: rider.profilePicture,
+				gender: rider.gender,
+				state: rider.state,
+				phone: rider.phone,
+			};
 
-            const refreshTokenExpiration = new Date();
-            refreshTokenExpiration.setDate(refreshTokenExpiration.getDate() + 30);
+			const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {
+				expiresIn: "1d",
+			});
+			const refreshToken = jwt.sign(tokenObject, process.env.REFRESH_SECRET, {
+				expiresIn: "30d",
+			});
 
-            rider.refreshToken = refreshToken;
-            rider.refreshTokenExpiration = refreshTokenExpiration;
+			const refreshTokenExpiration = new Date();
+			refreshTokenExpiration.setDate(refreshTokenExpiration.getDate() + 30);
 
-            const response = await rider.save();
-            if(response.isModified) {
+			rider.refreshToken = refreshToken;
+			rider.refreshTokenExpiration = refreshTokenExpiration;
+			rider.updatedAt = Date.now();
+			await rider.save();
 
-                return res.status(201).json({ success : true, jwtToken, refreshToken, tokenObject });
-            } else {
-                return res.status(500).json({success : false, data: 'updating-refresh-token-error'});
-            }
-        } catch (error) {
-            return res.status(500).json({ success : false, data: error  });
-            
-        }
-    },
+			console.log("done");
+			return res
+				.status(201)
+				.json({ success: true, jwtToken, refreshToken, tokenObject });
+		} catch (error) {
+			console.error("Error during login:", error); // Log the error for debugging
+			return res.status(500).json({
+				success: false,
+				message: "An error occurred",
+				data: error.message,
+			});
+		}
+	},
 
-    changeRiderPassword: async (req, res) => {
-        try{
-            const rider = await RiderModel.findOne({ email : req.body.email});
+	changeRiderPassword: async (req, res) => {
+		try {
+			const rider = await RiderModel.findOne({ email: req.body.email });
 
-            if(!rider) {
-                return res.status(401).json({ success : false,  message: 'email-not-found' });
-            }
+			if (!rider) {
+				return res
+					.status(401)
+					.json({ success: false, message: "email-not-found" });
+			}
 
-            const isPassEqual = await compareHashData(req.body.oldPassword, rider.password);
+			const isPassEqual = await compareHashData(
+				req.body.oldPassword,
+				rider.password
+			);
 
-            if(!isPassEqual) {
-                return res.status(401).json({ success : false,  message: 'wrong-password' });
-            }
+			if (!isPassEqual) {
+				return res
+					.status(401)
+					.json({ success: false, message: "wrong-password" });
+			}
 
-            const isNewPassSame = await compareHashData(req.body.newPassword, rider.password); 
+			const isNewPassSame = await compareHashData(
+				req.body.newPassword,
+				rider.password
+			);
 
-            if(isNewPassSame) {
-                return res.status(401).json({ success : false,  message: 'same-password' });
-            }
+			if (isNewPassSame) {
+				return res
+					.status(401)
+					.json({ success: false, message: "same-password" });
+			}
 
-            rider.password = await hashData(req.body.newPassword);
+			rider.password = await hashData(req.body.newPassword);
 
-            const response = await rider.save();
-            if(response.isModified) {
-                return res.status(201).json({ success : true, message: 'password-update-successful' });
-            } else {
-                return res.status(500).json({success : false, data: 'updating-password-error'});
-            }
+			const response = await rider.save();
+			if (response.isModified) {
+				return res
+					.status(201)
+					.json({ success: true, message: "password-update-successful" });
+			} else {
+				return res
+					.status(500)
+					.json({ success: false, data: "updating-password-error" });
+			}
+		} catch (error) {
+			return res.status(500).json({ success: false, data: error });
+		}
+	},
 
-        } catch (error) {
-            return res.status(500).json({ success : false, data: error  });
-        }
-    },
+	updateRiderInfo: async (req, res) => {
+		try {
+			const rider = await RiderModel.findOne({ email: req.body.email });
 
-    updateRiderInfo: async (req,res) => {
-        try {
-            const rider = await RiderModel.findOne({ email: req.body.email});
+			if (!rider) {
+				return res
+					.status(401)
+					.json({ success: false, message: "rider-not-found" });
+			}
 
-            if(!rider) {
-                return res.status(401).json({ success : false, message: 'rider-not-found' });
-            }
+			rider.firstName = req.body.firstName;
+			rider.lastName = req.body.lastName;
+			rider.phone = req.body.phone;
+			rider.gender = req.body.gender;
 
-            rider.firstName = req.body.firstName;
-            rider.lastName = req.body.lastName;
-            rider.phone = req.body.phone;
-            rider.gender = req.body.gender;
-            
-            const response = await rider.save();
-            if(response.isModified) {
-                const tokenObject = {
-                    _id : rider._id,
-                    riderId: rider.riderId,
-                    isEmailVerified : rider.isEmailVerified,
-                    fullName: rider.fullName,
-                    firstName : rider.firstName,
-                    lastName : rider.lastName,
-                    email : rider.email,
-                    profilePicture: rider.profilePicture,
-                    gender : rider.gender,
-                    state: rider.state,
-                    phone : rider.phone
-                }
-                return res.status(201).json({ success : true, tokenObject });
-            } else {
-                return res.status(500).json({success : false, data: 'updating-info-error'});
-            }
+			const response = await rider.save();
+			if (response.isModified) {
+				const tokenObject = {
+					_id: rider._id,
+					riderId: rider.riderId,
+					isEmailVerified: rider.isEmailVerified,
+					fullName: rider.fullName,
+					firstName: rider.firstName,
+					lastName: rider.lastName,
+					email: rider.email,
+					profilePicture: rider.profilePicture,
+					gender: rider.gender,
+					state: rider.state,
+					phone: rider.phone,
+				};
+				return res.status(201).json({ success: true, tokenObject });
+			} else {
+				return res
+					.status(500)
+					.json({ success: false, data: "updating-info-error" });
+			}
+		} catch (error) {
+			return res.status(500).json({ success: false, data: error });
+		}
+	},
 
+	refreshRiderToken: async (req, res) => {
+		try {
+			const rider = await RiderModel.findOne({ email: req.body.email });
+			if (!rider) {
+				return res
+					.status(401)
+					.json({ success: false, message: "rider-not-found" });
+			}
+			const expirationDate = new Date(rider.refreshTokenExpiration);
+			const isExpired = new Date() > expirationDate.getTime();
 
-        } catch (error) {
-            return res.status(500).json({ success : false, data: error  });
-            
-        }
-    },
+			const refreshTokenEqual = req.body.refreshToken === rider.refreshToken;
+			if (!refreshTokenEqual) {
+				return res
+					.status(403)
+					.json({ success: false, message: "refresh-token-invalid" });
+			}
 
-    refreshRiderToken: async (req, res) => {
-        try {
-            const rider = await RiderModel.findOne({email: req.body.email});
-            if(!rider) {
-                return res.status(401).json({ success : false, message: 'rider-not-found' });
-            }
-            const expirationDate = new Date(rider.refreshTokenExpiration); 
-            const isExpired = new Date() > expirationDate.getTime();
+			if (isExpired) {
+				rider.refreshToken = "";
+				rider.refreshTokenExpiration = null;
 
-            const refreshTokenEqual = req.body.refreshToken === rider.refreshToken;
-            if(!refreshTokenEqual) {
-                return res.status(403).json({ success : false, message: 'refresh-token-invalid'});
-            }
+				const response = await rider.save();
+				if (response.isModified) {
+					return res
+						.status(403)
+						.json({ success: false, message: "refresh-token-expired" });
+				} else {
+					return res
+						.status(500)
+						.json({ success: false, message: "updating-refresh-token-error" });
+				}
+			}
+			const tokenObject = {
+				_id: rider._id,
+				riderId: rider.riderId,
+				isEmailVerified: rider.isEmailVerified,
+				fullName: rider.fullName,
+				firstName: rider.firstName,
+				lastName: rider.lastName,
+				email: rider.email,
+				profilePicture: rider.profilePicture,
+				gender: rider.gender,
+				state: rider.state,
+				phone: rider.phone,
+			};
 
-            if (isExpired) {
-                rider.refreshToken = "";
-                rider.refreshTokenExpiration = null;
+			const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {
+				expiresIn: "1d",
+			});
+			return res.status(201).json({ success: true, jwtToken, tokenObject });
+		} catch (error) {
+			return res.status(500).json({ success: false, data: error });
+		}
+	},
 
-                const response = await rider.save();
-                if(response.isModified) {
-                    return res.status(403).json({ success : false, message: 'refresh-token-expired' });
-                } else {
-                    return res.status(500).json({success : false, message: 'updating-refresh-token-error'});
-                }
-            }
-            const tokenObject = {
-                _id : rider._id,
-                riderId: rider.riderId,
-                isEmailVerified : rider.isEmailVerified,
-                fullName: rider.fullName,
-                firstName : rider.firstName,
-                lastName : rider.lastName,
-                email : rider.email,
-                profilePicture: rider.profilePicture,
-                gender : rider.gender,
-                state: rider.state,
-                phone : rider.phone
-            }
+	resendRiderOtp: async (req, res) => {
+		try {
+			const rider = await RiderModel.findOne({ email: req.body.email });
 
+			if (!rider) {
+				return res
+					.status(401)
+					.json({ success: false, message: "email-not-found" });
+			}
+			const generatedOtp = await generateOtp();
+			rider.otpCode = await hashData(generatedOtp);
 
-            const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {expiresIn : '1d'});
-            return res.status(201).json({ success : true, jwtToken, tokenObject });
-        } catch(error) {
-            return res.status(500).json({ success : false, data: error  });
-        }
-    },
+			await rider.save();
+			await sendOtp({
+				email: rider.email,
+				firstName: rider.firstName,
+				otpCode: generatedOtp,
+			});
+			return res.status(201).json({ success: true, data: "otp-sent" });
+		} catch (error) {
+			return res.status(500).json({ success: false, data: error });
+		}
+	},
 
-    resendRiderOtp: async (req, res) => {
-        try {
-            const rider = await RiderModel.findOne({email: req.body.email});
+	verifyRiderOtp: async (req, res) => {
+		try {
+			const rider = await RiderModel.findOne({ email: req.body.email });
 
-            if(!rider) {
-                return res.status(401).json({success : false,  message: 'email-not-found'});
-            }
-            const generatedOtp = await generateOtp();
-            rider.otpCode = await hashData(generatedOtp);
+			if (!rider) {
+				return res
+					.status(401)
+					.json({ success: false, message: "email-not-found" });
+			}
 
-            await rider.save();
-            await sendOtp({ email: rider.email, firstName: rider.firstName, otpCode: generatedOtp });    
-            return res.status(201).json({ success : true, data: "otp-sent" });
-               
-    
-            
-        } catch (error) {
-            return res.status(500).json({ success : false, data: error  });
-        }
-    },
+			const isOtpEqual = await compareHashData(req.body.otpCode, rider.otpCode);
 
-    
-    verifyRiderOtp: async (req, res) => {
-        try {
-            const rider = await RiderModel.findOne({email: req.body.email});
+			if (!isOtpEqual) {
+				return res.status(401).json({ success: false, message: "wrong-otp" });
+			}
 
-            if(!rider) {
-                return res.status(401).json({success : false,  message: 'email-not-found'});
-            }
-    
-            const isOtpEqual = await compareHashData(req.body.otpCode, rider.otpCode);
-    
-            if(!isOtpEqual) {
-                return res.status(401).json({ success : false, message: 'wrong-otp'});
-            }
-            
-            rider.isEmailVerified = true;
-            rider.otpCode = await generateFiveCharOtp();
-           
+			rider.isEmailVerified = true;
+			rider.otpCode = await generateFiveCharOtp();
 
-            const response = await rider.save();
-            if(response.isModified) {
-                return res.status(201).json({ success : true, message: 'email-verified' });
-            } else {
-                return res.status(500).json({success : false, message: 'updating-refresh-token-error'});
-            }
-            
-        } catch (error) {
-            return res.status(500).json({ success : false, data: error  });
-        }
-    }
-
-}
+			const response = await rider.save();
+			if (response.isModified) {
+				return res
+					.status(201)
+					.json({ success: true, message: "email-verified" });
+			} else {
+				return res
+					.status(500)
+					.json({ success: false, message: "updating-refresh-token-error" });
+			}
+		} catch (error) {
+			return res.status(500).json({ success: false, data: error });
+		}
+	},
+};
