@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "netlify deploy --prod",
-    "start": "nodemon index.js --host 192.168.10.115"
+    "build": "netlify deploy --prod"
   },
   "keywords": [],
   "author": "mashcorp",
