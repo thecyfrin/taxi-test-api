@@ -1,7 +1,5 @@
 [build]
     functions = "functions"
-[functions]
-  included_files = ["config/keys/**.json"]
 
 [[redirects]]
   from = "/api/v1/*"
