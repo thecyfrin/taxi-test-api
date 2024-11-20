@@ -45,6 +45,8 @@ module.exports = {
 	},
 
 	completeRegistration: async (req, res) => {
+		console.log(req.file);
+
 		try {
 			const rider = await RiderModel.findOne({ email: req.body.email });
 
@@ -60,14 +62,7 @@ module.exports = {
 					.json({ success: false, message: "image-upload-failed" });
 			}
 
-			const folderName = path.dirname(req.file.path).split(path.sep).pop(); // Extract last folder
-			const fileName = path.basename(req.file.path); // Extract the file name
-
-			const imageUrl = `${req.protocol}://${req.get(
-				"host"
-			)}/uploads/${folderName}/${fileName}`;
-
-			rider.profilePicture = imageUrl;
+			rider.profilePicture = req.file.path;
 			rider.state = req.body.state;
 			rider.fullName = req.body.fullName;
 
@@ -117,8 +112,6 @@ module.exports = {
 	},
 
 	loginRider: async (req, res) => {
-		console.log("I am here");
-
 		try {
 			const rider = await RiderModel.findOne({ email: req.body.email });
 			if (!rider) {
@@ -171,7 +164,6 @@ module.exports = {
 				.status(201)
 				.json({ success: true, jwtToken, refreshToken, tokenObject });
 		} catch (error) {
-			console.error("Error during login:", error); // Log the error for debugging
 			return res.status(500).json({
 				success: false,
 				message: "An error occurred",
