@@ -11,6 +11,7 @@ const {
 	completeRegistrationValidate,
 	completeDriverRegistrationValidate,
 	resendOtpValidate,
+	fcmTokenValidation,
 } = require("../modules/utils/userValidation");
 const { ensureAuthenticated } = require("../modules/utils/auth");
 const { notifyUser } = require("../modules/notification");
@@ -23,6 +24,7 @@ const {
 	completeRegistration,
 	verifyRiderOtp,
 	resendRiderOtp,
+	fcmUpload,
 } = require("../modules/usercontroller/rider-controller");
 const {
 	registerDriver,
@@ -33,6 +35,7 @@ const {
 	changeDriverPassword,
 	completeDriverRegistration,
 	resendDriverOtp,
+	fcmUploadDriver,
 } = require("../modules/usercontroller/driver-controller");
 const { upload, multi_upload } = require("../modules/utils/upload-photo");
 const { tripCreateValidation } = require("../modules/utils/tripValidation");
@@ -48,16 +51,19 @@ routes.get("/", (req, res) => {
 	console.log("it's called");
 });
 
+//For All
+
 //Authentication - Customer
 
 routes.post("/register", userRegisterValidate, registerRider);
 
 routes.post(
 	"/complete-registration",
-	upload().single("image"),
 	completeRegistrationValidate,
 	completeRegistration
 );
+
+routes.post("/user-fcm", fcmTokenValidation, fcmUpload);
 
 routes.post("/:riderId/set-country");
 
@@ -89,14 +95,12 @@ routes.post("/register-driver", userRegisterValidate, registerDriver);
 
 routes.post(
 	"/complete-driver-registration/:driverID",
-	upload().fields([
-		{ name: "profilePicture", maxCount: 1 },
-		{ name: "dlFront", maxCount: 1 },
-		{ name: "dlBack", maxCount: 1 },
-	]),
+
 	completeDriverRegistrationValidate,
 	completeDriverRegistration
 );
+
+routes.post("/driver-fcm", fcmTokenValidation, fcmUploadDriver);
 
 // routes.post(
 // 	"/complete-driver-registration/:driverID/picture",

@@ -22,7 +22,22 @@ const completeRegistrationValidate = (req, res, next) => {
 		email: Joi.string().email().required(),
 		fullName: Joi.string().required(),
 		state: Joi.string().required(),
-		image: Joi.string().optional(), // Not required because multer handles the file
+		image: Joi.string().required(),
+	});
+
+	const { err, value } = schema.validate(req.body);
+	if (err) {
+		return res
+			.status(400)
+			.json({ success: false, data: err.details[0].message });
+	}
+	next();
+};
+
+const fcmTokenValidation = (req, res, next) => {
+	const schema = Joi.object({
+		email: Joi.string().email().required(),
+		fcmToken: Joi.string().required(),
 	});
 
 	// Validate the fields inside req.body (parsed after multer runs)
@@ -159,6 +174,7 @@ module.exports = {
 	userRegisterValidate,
 	completeRegistrationValidate,
 	completeDriverRegistrationValidate,
+	fcmTokenValidation,
 	userLoginValidate,
 	userRefreshValidate,
 	resendOtpValidate,

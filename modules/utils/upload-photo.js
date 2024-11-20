@@ -3,13 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const multerGoogleStorage = require("multer-google-storage");
 
+
 exports.upload = () => {
 	return multer({
 		storage: multerGoogleStorage.storageEngine({
 			autoRetry: true,
 			bucket: "soemwhere-bucket",
 			projectId: "storerun-404909",
-			keyFilename: "config/keys/storerun-404909-89f677a0013c.json",
+			keyFilename: "../../config/keys/storerun-404909-89f677a0013c.json",
 		}),
 
 		fileFilter: (req, file, cb) => {

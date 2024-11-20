@@ -45,8 +45,6 @@ module.exports = {
 	},
 
 	completeRegistration: async (req, res) => {
-		console.log(req.file);
-
 		try {
 			const rider = await RiderModel.findOne({ email: req.body.email });
 
@@ -56,13 +54,7 @@ module.exports = {
 					.json({ success: false, message: "email-not-found" });
 			}
 
-			if (!req.file) {
-				return res
-					.status(405)
-					.json({ success: false, message: "image-upload-failed" });
-			}
-
-			rider.profilePicture = req.file.path;
+			rider.profilePicture = req.body.image;
 			rider.state = req.body.state;
 			rider.fullName = req.body.fullName;
 
@@ -106,6 +98,26 @@ module.exports = {
 					.status(500)
 					.json({ success: false, message: "updating-refresh-token-error" });
 			}
+		} catch (error) {
+			return res.status(500).json({ success: false, data: error });
+		}
+	},
+
+	fcmUpload: async (req, res) => {
+		try {
+			const { email, fcmToken } = req.body;
+			const rider = await RiderModel.findOne({ email });
+
+			if (!rider) {
+				return res
+					.status(401)
+					.json({ success: false, message: "email-not-found" });
+			}
+
+			rider.fcmToken = fcmToken;
+			await rider.save();
+
+			return res.status(201).json({ success: true, data: "fcm-token-updated" });
 		} catch (error) {
 			return res.status(500).json({ success: false, data: error });
 		}

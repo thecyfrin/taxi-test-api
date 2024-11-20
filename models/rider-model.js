@@ -67,6 +67,9 @@ const RiderSchema = new Schema({
 		type: Date,
 		default: Date.now,
 	},
+	fcmToken: {
+		type: String,
+	},
 });
 
 const RiderModel = mongoose.model("riders", RiderSchema);

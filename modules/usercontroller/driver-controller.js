@@ -52,7 +52,6 @@ module.exports = {
 
 	completeDriverRegistration: async (req, res) => {
 		try {
-			const { profilePicture, dlFront, dlBack } = req.files;
 			const driver = await DriverModel.findOne({
 				driverId: req.params.driverID,
 			});
@@ -75,9 +74,9 @@ module.exports = {
 			vehicle.carModel = req.body.vehicleModel;
 			vehicle.vinNum = req.body.vehicleVin;
 
-			driver.driverPictures.profilePicture = profilePicture[0].path;
-			driver.driverPictures.dlFront = dlFront[0].path;
-			driver.driverPictures.dlBack = dlBack[0].path;
+			driver.driverPictures.profilePicture = req.body.profilePicture;
+			driver.driverPictures.dlFront = req.body.dlFront;
+			driver.driverPictures.dlBack = req.body.dlBack;
 			driver.vehicleDetails.push(vehicle);
 
 			driver.insurance.policyNo = req.body.insurancePolicyNo;
@@ -144,6 +143,26 @@ module.exports = {
 			}
 		} catch (error) {
 			console.log(error);
+			return res.status(500).json({ success: false, data: error });
+		}
+	},
+
+	fcmUploadDriver: async (req, res) => {
+		try {
+			const { email, fcmToken } = req.body;
+			const driver = await DriverModel.findOne({ email });
+
+			if (!driver) {
+				return res
+					.status(401)
+					.json({ success: false, message: "email-not-found" });
+			}
+
+			driver.fcmToken = fcmToken;
+			await driver.save();
+
+			return res.status(201).json({ success: true, data: "fcm-token-updated" });
+		} catch (error) {
 			return res.status(500).json({ success: false, data: error });
 		}
 	},
