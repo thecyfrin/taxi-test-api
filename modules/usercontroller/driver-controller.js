@@ -62,12 +62,6 @@ module.exports = {
 					.json({ success: false, message: "email-not-found" });
 			}
 
-			if (!req.files) {
-				return res
-					.status(405)
-					.json({ success: false, message: "image-upload-failed" });
-			}
-
 			const vehicle = new VehicleModel();
 			vehicle.id = generateUUID();
 			vehicle.carName = req.body.vehicleName;
@@ -113,11 +107,11 @@ module.exports = {
 					email: driver.email,
 					profilePicture: driver.driverPictures.profilePicture,
 					gender: driver.gender,
-					state: driver.state,
 					phone: driver.phone,
 					business: driver.business,
 					paymentMethods: driver.paymentMethods,
 					vehicleDetails: driver.vehicleDetails,
+					fcmToken: driver.fcmToken,
 					createdAt: driver.createdAt,
 				};
 
@@ -196,11 +190,11 @@ module.exports = {
 				email: driver.email,
 				profilePicture: driver.driverPictures.profilePicture,
 				gender: driver.gender,
-				state: driver.state,
 				phone: driver.phone,
 				business: driver.business,
 				paymentMethods: driver.paymentMethods,
 				vehicleDetails: driver.vehicleDetails,
+				fcmToken: driver.fcmToken,
 				createdAt: driver.createdAt,
 			};
 
@@ -290,13 +284,21 @@ module.exports = {
 				const tokenObject = {
 					_id: driver._id,
 					driverId: driver.driverId,
+					driverAccepted: driver.driverAccepted,
 					isEmailVerified: driver.isEmailVerified,
 					firstName: driver.firstName,
 					lastName: driver.lastName,
 					email: driver.email,
+					profilePicture: driver.driverPictures.profilePicture,
 					gender: driver.gender,
 					phone: driver.phone,
+					business: driver.business,
+					paymentMethods: driver.paymentMethods,
+					vehicleDetails: driver.vehicleDetails,
+					fcmToken: driver.fcmToken,
+					createdAt: driver.createdAt,
 				};
+
 				return res.status(201).json({ success: true, tokenObject });
 			} else {
 				return res
@@ -310,17 +312,16 @@ module.exports = {
 
 	refreshDriverToken: async (req, res) => {
 		try {
-			const driverModel = await DriverModel.findOne({ email: req.body.email });
-			if (!driverModel) {
+			const driver = await DriverModel.findOne({ email: req.body.email });
+			if (!driver) {
 				return res
 					.status(401)
 					.json({ success: false, message: "driver-not-found" });
 			}
-			const expirationDate = new Date(driverModel.refreshTokenExpiration);
+			const expirationDate = new Date(driver.refreshTokenExpiration);
 			const isExpired = new Date() > expirationDate.getTime();
 
-			const refreshTokenEqual =
-				req.body.refreshToken === driverModel.refreshToken;
+			const refreshTokenEqual = req.body.refreshToken === driver.refreshToken;
 			if (!refreshTokenEqual) {
 				return res
 					.status(403)
@@ -328,10 +329,10 @@ module.exports = {
 			}
 
 			if (isExpired) {
-				driverModel.refreshToken = "";
-				driverModel.refreshTokenExpiration = null;
+				driver.refreshToken = "";
+				driver.refreshTokenExpiration = null;
 
-				const response = await driverModel.save();
+				const response = await driver.save();
 				if (response.isModified) {
 					return res
 						.status(403)
@@ -343,13 +344,21 @@ module.exports = {
 				}
 			}
 			const tokenObject = {
-				_id: driverModel._id,
-				driverId: driverModel.driverId,
-				firstName: driverModel.firstName,
-				lastName: driverModel.lastName,
-				email: driverModel.email,
-				gender: driverModel.gender,
-				phone: driverModel.phone,
+				_id: driver._id,
+				driverId: driver.driverId,
+				driverAccepted: driver.driverAccepted,
+				isEmailVerified: driver.isEmailVerified,
+				firstName: driver.firstName,
+				lastName: driver.lastName,
+				email: driver.email,
+				profilePicture: driver.driverPictures.profilePicture,
+				gender: driver.gender,
+				phone: driver.phone,
+				business: driver.business,
+				paymentMethods: driver.paymentMethods,
+				vehicleDetails: driver.vehicleDetails,
+				fcmToken: driver.fcmToken,
+				createdAt: driver.createdAt,
 			};
 
 			const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {

@@ -72,6 +72,7 @@ module.exports = {
 				gender: rider.gender,
 				state: rider.state,
 				phone: rider.phone,
+				fcmToken: rider.fcmToken,
 				createdAt: rider.createdAt,
 			};
 
@@ -154,6 +155,8 @@ module.exports = {
 				gender: rider.gender,
 				state: rider.state,
 				phone: rider.phone,
+				fcmToken: rider.fcmToken,
+				createdAt: rider.createdAt,
 			};
 
 			const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {
@@ -262,6 +265,8 @@ module.exports = {
 					gender: rider.gender,
 					state: rider.state,
 					phone: rider.phone,
+					fcmToken: rider.fcmToken,
+					createdAt: rider.createdAt,
 				};
 				return res.status(201).json({ success: true, tokenObject });
 			} else {
@@ -319,6 +324,8 @@ module.exports = {
 				gender: rider.gender,
 				state: rider.state,
 				phone: rider.phone,
+				fcmToken: rider.fcmToken,
+				createdAt: rider.createdAt,
 			};
 
 			const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {
