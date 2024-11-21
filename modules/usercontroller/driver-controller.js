@@ -62,12 +62,7 @@ module.exports = {
 					.json({ success: false, message: "email-not-found" });
 			}
 
-			if (!req.files) {
-				return res
-					.status(405)
-					.json({ success: false, message: "image-upload-failed" });
-			}
-
+		
 			const vehicle = new VehicleModel();
 			vehicle.id = generateUUID();
 			vehicle.carName = req.body.vehicleName;
