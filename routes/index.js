@@ -38,8 +38,14 @@ const {
 	fcmUploadDriver,
 } = require("../modules/usercontroller/driver-controller");
 const { upload, multi_upload } = require("../modules/utils/upload-photo");
-const { tripCreateValidation } = require("../modules/utils/tripValidation");
-const { createTrip } = require("../modules/trip-controller");
+const {
+	tripCreateValidation,
+	tripGetDriverValidation,
+} = require("../modules/utils/tripValidation");
+const {
+	createTrip,
+	getTripDriverDetails,
+} = require("../modules/trip-controller");
 const {
 	checkNotificationInput,
 } = require("../modules/utils/notificationValidation");
@@ -179,6 +185,11 @@ routes.post("/notify", checkNotificationInput, notifyUser);
 
 //trips - Rider
 routes.post("/create-trip", tripCreateValidation, createTrip);
+routes.get(
+	"/get-driver-details",
+	tripGetDriverValidation,
+	getTripDriverDetails
+);
 
 //trips - Driver
 
