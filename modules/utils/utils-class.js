@@ -16,7 +16,7 @@ const generateFiveCharOtp = async () => {
     return otp;
 }
 
-const calculateBaseFare = (duration, distance) => {
+const calculateBaseFare = (duration, distance, vehicleTier) => {
     const fareAmountPerMinute = (duration / 60) * 0.1;
     const fareAmountPerKilometer = (distance / 1000) * 0.1;
 
