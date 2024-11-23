@@ -1,7 +1,6 @@
 const DriverModel = require("../../models/driver-model");
 
 const jwt = require("jsonwebtoken");
-const path = require("path");
 
 const {
 	generateUUID,
@@ -101,6 +100,7 @@ module.exports = {
 					_id: driver._id,
 					driverId: driver.driverId,
 					driverAccepted: driver.driverAccepted,
+					rideStatus: driver.rideStatus,
 					isEmailVerified: driver.isEmailVerified,
 					firstName: driver.firstName,
 					lastName: driver.lastName,
@@ -184,6 +184,7 @@ module.exports = {
 				_id: driver._id,
 				driverId: driver.driverId,
 				driverAccepted: driver.driverAccepted,
+				rideStatus: driver.rideStatus,
 				isEmailVerified: driver.isEmailVerified,
 				firstName: driver.firstName,
 				lastName: driver.lastName,
@@ -285,6 +286,7 @@ module.exports = {
 					_id: driver._id,
 					driverId: driver.driverId,
 					driverAccepted: driver.driverAccepted,
+					rideStatus: driver.rideStatus,
 					isEmailVerified: driver.isEmailVerified,
 					firstName: driver.firstName,
 					lastName: driver.lastName,
@@ -347,6 +349,7 @@ module.exports = {
 				_id: driver._id,
 				driverId: driver.driverId,
 				driverAccepted: driver.driverAccepted,
+				rideStatus: driver.rideStatus,
 				isEmailVerified: driver.isEmailVerified,
 				firstName: driver.firstName,
 				lastName: driver.lastName,

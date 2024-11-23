@@ -12,6 +12,7 @@ const tripCreateValidation = (req, res, next) => {
         destinationLocationText: Joi.string().required(), 
         destinationLat: Joi.string().required(),
         destinationLong: Joi.string().required(),
+        vehicleTier: Joi.string().required(),
     });
     
     const {err, value} = schema.validate(req.body);

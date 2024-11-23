@@ -26,6 +26,10 @@ const DriverSchema = new Schema({
 		type: Boolean,
 		default: false,
 	},
+	rideStatus: {
+		type: String,
+		default: null,
+	},
 	otpCode: String,
 	firstName: {
 		type: String,
@@ -85,6 +89,9 @@ const DriverSchema = new Schema({
 			vehicleTier: String,
 		},
 	],
+	totalTrips: {
+		type: Number,
+	},
 	ratingStar: {
 		type: Number,
 	},

@@ -509,7 +509,7 @@ module.exports = {
 
 	approveDriver: async (req, res) => {
 		try {
-			const { driverId, vehicleId, vehicleTier } = req.body;
+			const { driverId, vehicleId, vehicleTier, carLicense } = req.body;
 
 			const driver = await DriverModel.findOne({ driverId });
 			if (!driver) {
@@ -529,6 +529,7 @@ module.exports = {
 			}
 
 			vehicle.vehicleTier = vehicleTier;
+			vehicle.carLicense = carLicense;
 
 			await driver.save();
 

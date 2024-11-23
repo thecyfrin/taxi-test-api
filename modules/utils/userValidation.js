@@ -58,6 +58,7 @@ const completeDriverRegistrationValidate = (req, res, next) => {
 		vehicleName: Joi.string().required(),
 		vehicleModel: Joi.string().required(),
 		vehicleVin: Joi.string().required(),
+		carLicense: Joi.string().required(),
 		insurancePolicyNo: Joi.string().required(),
 		insuranceHolderName: Joi.string().required(),
 		insuranceCompany: Joi.string().required(),
