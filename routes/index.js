@@ -185,7 +185,7 @@ routes.post("/notify", checkNotificationInput, notifyUser);
 
 //trips - Rider
 routes.post("/create-trip", tripCreateValidation, createTrip);
-routes.get(
+routes.post(
 	"/get-driver-details",
 	tripGetDriverValidation,
 	getTripDriverDetails
