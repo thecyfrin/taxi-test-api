@@ -74,7 +74,7 @@ module.exports = {
 			if (trip.driverFound == false) {
 				return res
 					.status(401)
-					.json({ success: false, message: "driver-not-found" });
+					.json({ success: false, message: "driver-not-assigned" });
 			}
 
 			const driver = DriverModel.findOne({ driverId: trip.driverId });
