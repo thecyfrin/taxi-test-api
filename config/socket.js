@@ -24,27 +24,6 @@ const setupSocket = (server) => {
 			socket.join(tripId); // Both driver and user join the same room
 		});
 
-		// Emit updates scoped to a trip room
-		socket.on("tripUpdate", ({ tripId, updatedFields }) => {
-			try {
-				if (!tripId) {
-					console.log("tripId is required for tripUpdate event");
-					return;
-				}
-
-				// Log the event for debugging
-				console.log(
-					`Trip update received for tripId: ${tripId}`,
-					updatedFields
-				);
-
-				// Emit to the specific trip room
-				io.to(tripId).emit("tripUpdated", { tripId, updatedFields });
-			} catch (error) {
-				console.log("Error emitting trip update:", error);
-			}
-		});
-
 		// Handle disconnection
 		socket.on("disconnect", () => {
 			console.log(`User disconnected: ${socket.id}`);
