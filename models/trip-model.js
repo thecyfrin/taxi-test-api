@@ -7,21 +7,8 @@ const TripSchema = new Schema({
 		required: true,
 		index: true,
 	},
-	isTripActive: {
-		type: Boolean,
-		default: false,
-	},
-	isTripCancelled: {
-		type: Boolean,
-		default: false,
-	},
-	isTripStarted: {
-		type: Boolean,
-		default: false,
-	},
-	isTripFinished: {
-		type: Boolean,
-		default: false,
+	tripStatus: {
+		type: String,
 	},
 	driverFound: {
 		type: Boolean,
@@ -70,7 +57,7 @@ const TripSchema = new Schema({
 	baseFare: {
 		type: Number,
 		default: 0.0,
-	}, 
+	},
 	finalFare: {
 		type: Number,
 		default: 0.0,
@@ -81,7 +68,6 @@ const TripSchema = new Schema({
 	transactionId: {
 		type: String,
 	},
-   
 });
 
 const TripModel = mongoose.model("trips", TripSchema);

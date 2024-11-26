@@ -35,7 +35,40 @@ const tripGetDriverValidation = (req, res, next) => {
 	next();
 };
 
+const getRideInfoValidation = (req, res, next) => {
+	const schema = Joi.object({
+		tripId: Joi.string().required(),
+	});
+
+	const { err, value } = schema.validate(req.body);
+	if (err) {
+		return res
+			.status(400)
+			.json({ success: false, message: "validation-failed", data: err });
+	}
+	next();
+};
+
+const tripAcceptValidation = (req, res, next) => {
+	const schema = Joi.object({
+		tripId: Joi.string().required(),
+		driverId: Joi.string().required(),
+		driverLat: Joi.number().required(),
+		driverLong: Joi.number().required(),
+	});
+
+	const { err, value } = schema.validate(req.body);
+	if (err) {
+		return res
+			.status(400)
+			.json({ success: false, message: "validation-failed", data: err });
+	}
+	next();
+};
+
 module.exports = {
 	tripCreateValidation,
 	tripGetDriverValidation,
+	getRideInfoValidation,
+	tripAcceptValidation,
 };

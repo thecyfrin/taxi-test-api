@@ -83,6 +83,7 @@ const DriverSchema = new Schema({
 	vehicleDetails: [
 		{
 			id: String,
+			isActive: Boolean,
 			carName: String,
 			carModel: String,
 			vinNum: String,
@@ -91,9 +92,11 @@ const DriverSchema = new Schema({
 	],
 	totalTrips: {
 		type: Number,
+		default: 0,
 	},
 	ratingStar: {
 		type: Number,
+		default: 0,
 	},
 	passDetails: {
 		passId: String,
@@ -125,6 +128,9 @@ const DriverSchema = new Schema({
 			stripeEmail: String,
 			stripeUsername: String,
 		},
+	},
+	fcmToken: {
+		type: String,
 	},
 });
 

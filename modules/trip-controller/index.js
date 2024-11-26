@@ -2,6 +2,10 @@ const RiderModel = require("../../models/rider-model");
 const DriverModel = require("../../models/driver-model");
 const TripModel = require("../../models/trip-model");
 const { generateUUID, calculateBaseFare } = require("../utils/utils-class");
+const { getIO } = require("../../config/socket");
+const {
+	sendNotificationOfTripToDrivers,
+} = require("../utils/sendNotificationToDrivers");
 
 module.exports = {
 	createTrip: async (req, res) => {
@@ -15,7 +19,7 @@ module.exports = {
 
 			const id = generateUUID();
 			const trip = new TripModel();
-			trip.isTripActive = true;
+			trip.tripStatus = "waiting";
 			trip.tripId = id;
 			trip.userId = req.body.userId;
 			trip.totalDuration = req.body.totalDuration;
@@ -32,22 +36,27 @@ module.exports = {
 				req.body.vehicleTier
 			);
 
+			await trip.save();
+
+			await sendNotificationOfTripToDrivers(
+				req.body.pickupLat,
+				req.body.pickupLong,
+				req.body.vehicleTier,
+				`${rider.firstName} ${rider.lastName}`,
+				id
+			);
+
 			const tripObject = {
-				isTripActive: trip.isTripActive,
 				tripId: trip.tripId,
+				tripStatus: trip.tripStatus,
 				pickup: trip.pickup,
 				destination: trip.destination,
 				baseFare: trip.baseFare,
 			};
-
-			const response = await trip.save();
-			if (response.isModified) {
-				return res.status(201).json({ success: true, tripObject });
-			} else {
-				return res
-					.status(500)
-					.json({ success: false, message: "trip-create-failed" });
-			}
+			// Emit tripCreated event to the rider's room
+			const io = getIO();
+			io.to(trip.tripId).emit("tripCreated", tripObject);
+			return res.status(201).json({ success: true, tripObject });
 		} catch (error) {
 			return res
 				.status(500)
@@ -55,29 +64,77 @@ module.exports = {
 		}
 	},
 
-	getTripDriverDetails: async (req, res) => {
+	//Driver section
+
+	getRideInformation: async (req, res) => {
 		try {
 			const { tripId } = req.body;
+
 			const trip = await TripModel.findOne({ tripId });
+			// if (!trip || trip.tripStatus != "waiting") {
 			if (!trip) {
 				return res
 					.status(401)
 					.json({ success: false, message: "trip-not-available" });
 			}
 
-			if (trip.isTripCancelled == true) {
+			console.log("Doing something");
+			const user = await RiderModel.findOne({ riderId: trip.userId });
+
+			if (!user) {
 				return res
 					.status(401)
-					.json({ success: false, message: "trip-already-cancelled" });
+					.json({ success: false, message: "user-not-found" });
 			}
 
-			if (trip.driverFound == false) {
+			console.log(user);
+
+			const tripObject = {
+				tripId: trip.tripId,
+				userId: user.riderId,
+				totalDistance: trip.totalDistance,
+				totalDuration: trip.totalDuration,
+				baseFare: trip.baseFare,
+				userPhoto: user.profilePicture,
+				userPhone: user.phone,
+				userName: `${user.firstName} ${user.lastName}`,
+			};
+
+			res.status(201).json({ success: true, tripObject });
+		} catch (error) {
+			return res.status(500).json({
+				success: false,
+				message: "getting-trip-info-failed",
+				data: error,
+			});
+		}
+	},
+
+	acceptTrip: async (req, res) => {
+		try {
+			const { tripId, driverId, driverLat, driverLong } = req.body;
+
+			const trip = await TripModel.findOne({ tripId });
+			// if (!trip || trip.tripStatus != "waiting") {
+			if (!trip) {
+				return res
+					.status(201)
+					.json({ success: false, message: "trip-not-available" });
+			}
+
+			trip.driverId = driverId;
+			await trip.save();
+
+			const user = await RiderModel.findOne({ riderId: trip.userId });
+
+			if (!user) {
 				return res
 					.status(401)
-					.json({ success: false, message: "driver-not-assigned" });
-			}
+					.json({ success: false, message: "user-not-found" });
 
-			const driver = DriverModel.findOne({ driverId: trip.driverId });
+
+			const driver = await DriverModel.findOne({ driverId });
+
 			if (!driver) {
 				return res
 					.status(401)
@@ -86,24 +143,49 @@ module.exports = {
 
 			const driverObject = {
 				tripId: trip.tripId,
-				id: driver.driverId,
-				driverName: `${driver.firstName} ${driver.lastName}`,
+				driverId: trip.driverId,
 				photo: driver.driverPictures.profilePicture,
+				driverName: `${driver.firstName} ${driver.lastName}`,
 				phone: driver.phone,
 				business: driver.business.businessName,
-				vehicleName: driver.vehicleDetails[0].carName,
-				vehicleTier: driver.vehicleDetails[0].vehicleTier,
-				carLicense: driver.vehicleDetails[0].carLicense,
+				vehicleName: driver.vehicleDetails.vehicleName,
+				vehicleTier: driver.vehicleDetails.vehicleTier,
+				carLicense: driver.vehicleDetails.carLicense,
 				totalTrips: driver.totalTrips,
 				rating: driver.ratingStar,
-				reviews: [],
 			};
 
-			return res.status(201).json({ success: true, driverObject });
+			const driverLatLng = {
+				lat: driverLat,
+				lng: driverLong,
+			};
+
+			console.log("Giving vibes");
+
+			const io = getIO();
+			io.to(trip.tripId).emit("tripAccepted", { driverObject, driverLatLng });
+
+			console.log("IO sent!");
+
+			const tripObject = {
+				tripId: trip.tripId,
+				userId: user.riderId,
+				totalDistance: trip.totalDistance,
+				totalDuration: trip.totalDuration,
+				baseFare: trip.baseFare,
+				userPhoto: user.profilePicture,
+				userPhone: user.phone,
+				userName: `${user.firstName} ${user.lastName}`,
+				pickupLocation: trip.pickup.main_text,
+				pickupLat: trip.pickup.pickupLat,
+				pickupLong: trip.pickup.pickupLong,
+			};
+
+			res.status(201).json({ success: true, tripObject });
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
-				message: "getting-driver-failed",
+				message: "getting-trip-info-failed",
 				data: error,
 			});
 		}
