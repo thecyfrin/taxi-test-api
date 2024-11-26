@@ -11,9 +11,7 @@ const app = express();
 require("dotenv").config();
 require("../config/db");
 
-const apiServer = http.createServer(app); // Server for Express
-const socketServer = http.createServer(); // Separate server for Socket.IO
-const PORT_SOCKET = 3201; // Port for Socket.IO server
+const socketServer = http.createServer(app); // Separate server for Socket.IO
 // Body parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,19 +31,6 @@ app.use(
 
 // Export the handler for serverless
 module.exports.handler = serverless(app);
-
-// Start the local server if not in a serverless environment
-if (process.env.NODE_ENV !== "production") {
-	const PORT = process.env.PORT || 3000;
-	apiServer.listen(PORT, () => {
-		console.log(`Server running on http://localhost:${PORT}`);
-	});
-}
-
-// Start Socket.IO server on port 3000
-socketServer.listen(PORT_SOCKET, () => {
-	console.log(`Socket.IO server is running on http://localhost:${PORT_SOCKET}`);
-});
 
 // OLD CODE
 // const express = require("express");
