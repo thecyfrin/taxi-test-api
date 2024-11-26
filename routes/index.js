@@ -41,14 +41,21 @@ const { upload, multi_upload } = require("../modules/utils/upload-photo");
 const {
 	tripCreateValidation,
 	tripGetDriverValidation,
+	getRideInfoValidation,
+	tripAcceptValidation,
 } = require("../modules/utils/tripValidation");
 const {
 	createTrip,
 	getTripDriverDetails,
+	getRideInformation,
+	acceptTrip,
 } = require("../modules/trip-controller");
 const {
 	checkNotificationInput,
 } = require("../modules/utils/notificationValidation");
+const {
+	sendNotificationOfTripToDrivers,
+} = require("../modules/utils/sendNotificationToDrivers");
 
 const routes = express.Router();
 
@@ -108,54 +115,6 @@ routes.post(
 
 routes.post("/driver-fcm", fcmTokenValidation, fcmUploadDriver);
 
-// routes.post(
-// 	"/complete-driver-registration/:driverID/picture",
-// 	multi_upload("drivers").single("picture"),
-// 	(req, res) => {
-// 		if (!req.file) {
-// 			return res
-// 				.status(400)
-// 				.json({ success: false, message: "file-upload-failed." });
-// 		}
-// 		const folderName = path.dirname(req.file.path).split(path.sep).pop(); // Extract last folder
-// 		const fileName = path.basename(req.file.path); // Extract the file name
-
-// 		const profileUrl = `${req.protocol}://${req.get(
-// 			"host"
-// 		)}/uploads/${folderName}/${fileName}`;
-
-// 		res.status(200).json({ success: true, data: profileUrl });
-// 	}
-// );
-
-// routes.post(
-// 	"/complete-driver-registration/:driverID/dlFront",
-// 	multi_upload("drivers").single("dlFront"),
-// 	(req, res) => {
-// 		if (!req.file) {
-// 			return res
-// 				.status(400)
-// 				.json({ success: false, message: "file-upload-failed." });
-// 		}
-
-// 		const folderName = path.dirname(req.file.path).split(path.sep).pop(); // Extract last folder
-// 		const fileName = path.basename(req.file.path); // Extract the file name
-
-// 		const licenseFrontUrl = `${req.protocol}://${req.get(
-// 			"host"
-// 		)}/uploads/${folderName}/${fileName}`;
-
-// 		res.status(200).json({ success: true, data: licenseFrontUrl });
-// 	}
-// );
-
-// routes.post(
-// 	"/complete-driver-registration/:driverID/finishing",
-// 	multi_upload("drivers").single("dlBack"),
-// 	completeDriverRegistrationValidate,
-// 	completeDriverRegistration
-// );
-
 routes.post("/:driverId/set-country");
 
 routes.post("/login-driver", userLoginValidate, loginDriver);
@@ -181,16 +140,37 @@ routes.post(
 );
 
 //Notification
-routes.post("/notify", checkNotificationInput, notifyUser);
+// routes.post("/notify", checkNotificationInput, notifyUser);
 
-//trips - Rider
+// trips - Rider
 routes.post("/create-trip", tripCreateValidation, createTrip);
-routes.get(
-	"/get-driver-details",
-	tripGetDriverValidation,
-	getTripDriverDetails
-);
+
+// routes.post(
+// 	"/get-driver-details",
+// 	tripGetDriverValidation,
+// 	getTripDriverDetails
+// );
+
+routes.get("/stats", async (req, res) => {
+	try {
+		const firstName = "Mash";
+		const lastName = "Rahaman";
+		await sendNotificationOfTripToDrivers(
+			24.000028,
+			90.430387,
+			"elite",
+			`${firstName} ${lastName}`,
+			"941b6e82-4319-46b6-83c9-301d9fafed3b"
+		);
+		res.status(200).json({ driversFound: "All" });
+	} catch (err) {
+		console.log(err);
+	}
+	// Wait for 5 seconds (adjust as necessary)
+});
 
 //trips - Driver
+routes.post("/get-ride-information", getRideInfoValidation, getRideInformation);
+routes.post("/accept-trip", tripAcceptValidation, acceptTrip);
 
 module.exports = routes;

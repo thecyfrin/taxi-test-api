@@ -1,7 +1,16 @@
 // vehicle.js (Plain JS Model)
 class VehicleModel {
-	constructor(id, carName, carModel, vinNum, vehicleTier, carLicense) {
+	constructor(
+		id,
+		isActive,
+		carName,
+		carModel,
+		vinNum,
+		vehicleTier,
+		carLicense
+	) {
 		this.id = id;
+		this.isActive = isActive;
 		this.carName = carName;
 		this.carModel = carModel;
 		this.vinNum = vinNum;

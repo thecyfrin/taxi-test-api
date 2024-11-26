@@ -105,6 +105,7 @@ module.exports = {
 	},
 
 	fcmUpload: async (req, res) => {
+		console.log("Scam FCM");
 		try {
 			const { email, fcmToken } = req.body;
 			const rider = await RiderModel.findOne({ email });
@@ -327,7 +328,6 @@ module.exports = {
 				fcmToken: rider.fcmToken,
 				createdAt: rider.createdAt,
 			};
-
 			const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {
 				expiresIn: "1d",
 			});

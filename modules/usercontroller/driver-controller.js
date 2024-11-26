@@ -66,6 +66,7 @@ module.exports = {
 			vehicle.carName = req.body.vehicleName;
 			vehicle.carModel = req.body.vehicleModel;
 			vehicle.vinNum = req.body.vehicleVin;
+			vehicle.isActive = false;
 
 			driver.driverPictures.profilePicture = req.body.profilePicture;
 			driver.driverPictures.dlFront = req.body.dlFront;
@@ -97,20 +98,23 @@ module.exports = {
 			const response = await driver.save();
 			if (response.isModified) {
 				const tokenObject = {
-					_id: driver._id,
+					id: driver._id,
 					driverId: driver.driverId,
 					driverAccepted: driver.driverAccepted,
-					rideStatus: driver.rideStatus,
 					isEmailVerified: driver.isEmailVerified,
+					isSubscribed: driver.isSubscribed,
+					rideStatus: driver.rideStatus,
 					firstName: driver.firstName,
 					lastName: driver.lastName,
 					email: driver.email,
 					profilePicture: driver.driverPictures.profilePicture,
 					gender: driver.gender,
 					phone: driver.phone,
-					business: driver.business,
-					paymentMethods: driver.paymentMethods,
 					vehicleDetails: driver.vehicleDetails,
+					business: driver.business,
+					bankMethod: driver.paymentMethods.bankMethod,
+					paypal: driver.paymentMethods.paypal,
+					stripe: driver.paymentMethods.stripe,
 					fcmToken: driver.fcmToken,
 					createdAt: driver.createdAt,
 				};
@@ -181,24 +185,26 @@ module.exports = {
 			}
 
 			const tokenObject = {
-				_id: driver._id,
+				id: driver._id,
 				driverId: driver.driverId,
 				driverAccepted: driver.driverAccepted,
-				rideStatus: driver.rideStatus,
 				isEmailVerified: driver.isEmailVerified,
+				isSubscribed: driver.isSubscribed,
+				rideStatus: driver.rideStatus,
 				firstName: driver.firstName,
 				lastName: driver.lastName,
 				email: driver.email,
 				profilePicture: driver.driverPictures.profilePicture,
 				gender: driver.gender,
 				phone: driver.phone,
-				business: driver.business,
-				paymentMethods: driver.paymentMethods,
 				vehicleDetails: driver.vehicleDetails,
+				business: driver.business,
+				bankMethod: driver.paymentMethods.bankMethod,
+				paypal: driver.paymentMethods.paypal,
+				stripe: driver.paymentMethods.stripe,
 				fcmToken: driver.fcmToken,
 				createdAt: driver.createdAt,
 			};
-
 			const jwtToken = jwt.sign(tokenObject, process.env.SECRET, {
 				expiresIn: "4h",
 			});
@@ -283,20 +289,23 @@ module.exports = {
 			const response = await driver.save();
 			if (response.isModified) {
 				const tokenObject = {
-					_id: driver._id,
+					id: driver._id,
 					driverId: driver.driverId,
 					driverAccepted: driver.driverAccepted,
-					rideStatus: driver.rideStatus,
 					isEmailVerified: driver.isEmailVerified,
+					isSubscribed: driver.isSubscribed,
+					rideStatus: driver.rideStatus,
 					firstName: driver.firstName,
 					lastName: driver.lastName,
 					email: driver.email,
 					profilePicture: driver.driverPictures.profilePicture,
 					gender: driver.gender,
 					phone: driver.phone,
-					business: driver.business,
-					paymentMethods: driver.paymentMethods,
 					vehicleDetails: driver.vehicleDetails,
+					business: driver.business,
+					bankMethod: driver.paymentMethods.bankMethod,
+					paypal: driver.paymentMethods.paypal,
+					stripe: driver.paymentMethods.stripe,
 					fcmToken: driver.fcmToken,
 					createdAt: driver.createdAt,
 				};
@@ -346,20 +355,23 @@ module.exports = {
 				}
 			}
 			const tokenObject = {
-				_id: driver._id,
+				id: driver._id,
 				driverId: driver.driverId,
 				driverAccepted: driver.driverAccepted,
-				rideStatus: driver.rideStatus,
 				isEmailVerified: driver.isEmailVerified,
+				isSubscribed: driver.isSubscribed,
+				rideStatus: driver.rideStatus,
 				firstName: driver.firstName,
 				lastName: driver.lastName,
 				email: driver.email,
 				profilePicture: driver.driverPictures.profilePicture,
 				gender: driver.gender,
 				phone: driver.phone,
-				business: driver.business,
-				paymentMethods: driver.paymentMethods,
 				vehicleDetails: driver.vehicleDetails,
+				business: driver.business,
+				bankMethod: driver.paymentMethods.bankMethod,
+				paypal: driver.paymentMethods.paypal,
+				stripe: driver.paymentMethods.stripe,
 				fcmToken: driver.fcmToken,
 				createdAt: driver.createdAt,
 			};

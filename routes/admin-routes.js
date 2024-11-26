@@ -73,7 +73,7 @@ adminRoutes.get('/active-trips', ensureAdmin, getActiveTrips);
 
 
 //Notification
-adminRoutes.post('/notify', checkNotificationInput, notifyUser);
+// adminRoutes.post('/notify', checkNotificationInput, notifyUser);
 
 
 module.exports = adminRoutes;
