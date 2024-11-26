@@ -1,2 +1,2 @@
 [phases.install]
-  cmds = ['npm install --legacy-peer-deps']
+  cmds = ['apt-get update','apt-get install -y build-essential','apt-get install -y python','npm install --legacy-peer-deps']
