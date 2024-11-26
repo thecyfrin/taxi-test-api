@@ -8,9 +8,11 @@ const setupSocket = (server) => {
 	io = new Server(server, {
 		cors: {
 			// origin: "*", // Adjust the origin as needed for your setup
-			origin: "http://192.168.10.115:3000",
+			origin: "*",
 			methods: ["GET", "POST"],
+			allowedHeaders: [`Access-Control-Allow-Origin`],
 		},
+		maxHttpBufferSize: 1e8,
 	});
 
 	io.on("connection", (socket) => {
@@ -26,7 +28,7 @@ const setupSocket = (server) => {
 		socket.on("tripUpdate", ({ tripId, updatedFields }) => {
 			try {
 				if (!tripId) {
-					console.error("tripId is required for tripUpdate event");
+					console.log("tripId is required for tripUpdate event");
 					return;
 				}
 
@@ -39,8 +41,7 @@ const setupSocket = (server) => {
 				// Emit to the specific trip room
 				io.to(tripId).emit("tripUpdated", { tripId, updatedFields });
 			} catch (error) {
-				console.error("Error emitting trip update:", error);
-				io.to(tripId).emit("tripUpdated", { error: "Server error occurred" });
+				console.log("Error emitting trip update:", error);
 			}
 		});
 

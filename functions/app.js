@@ -13,7 +13,7 @@ require("../config/db");
 
 const apiServer = http.createServer(app); // Server for Express
 const socketServer = http.createServer(); // Separate server for Socket.IO
-const PORT_SOCKET = 3000; // Port for Socket.IO server
+const PORT_SOCKET = 3201; // Port for Socket.IO server
 // Body parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

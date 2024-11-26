@@ -21,31 +21,31 @@ admin.initializeApp({
 });
 
 const sendSingleNotification = async (token, title, description, tripId) => {
-	if (!token) {
-		console.log("No valid token provided.");
-		return;
-	}
+	try {
+		if (!token) {
+			console.log("No valid token provided.");
+			return;
+		}
 
-	const message = {
-		token, // Single token
-		notification: {
-			title,
-			body: description,
-		},
-		data: {
-			tripId: tripId,
-		},
-		android: { priority: "high" },
-		apns: {
-			payload: {
-				aps: {
-					badge: 42,
+		const message = {
+			token, // Single token
+			notification: {
+				title,
+				body: description,
+			},
+			data: {
+				tripId: tripId,
+			},
+			android: { priority: "high" },
+			apns: {
+				payload: {
+					aps: {
+						badge: 42,
+					},
 				},
 			},
-		},
-	};
+		};
 
-	try {
 		const response = await admin.messaging().send(message);
 		console.log("Successfully sent message:", response);
 	} catch (error) {
@@ -54,10 +54,10 @@ const sendSingleNotification = async (token, title, description, tripId) => {
 			error.errorInfo &&
 			error.errorInfo.code === "messaging/registration-token-not-registered"
 		) {
-			console.error(`Invalid FCM token detected: ${token}`);
+			console.log(`Invalid FCM token detected: ${token}`);
 			// Remove the invalid token from your database
 		} else {
-			console.error("Error sending notification:", error);
+			console.log("Error sending notification:", error);
 		}
 	}
 };
