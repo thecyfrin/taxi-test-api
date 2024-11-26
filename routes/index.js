@@ -160,6 +160,7 @@ routes.get("/stats", async (req, res) => {
 		res.status(200).json({ driversFound: "All" });
 	} catch (err) {
 		console.log(err);
+		res.status(402).json({ error: err });
 	}
 	// Wait for 5 seconds (adjust as necessary)
 });

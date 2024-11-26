@@ -63,7 +63,7 @@ const sendNotificationOfTripToDrivers = async (
 			});
 		}, 5000); // Wait for 5 seconds (adjust as necessary)
 	} catch (error) {
-		console.error("Geofire error:", error.message);
+		console.log("Geofire error:", error.message);
 		throw new Error("Sending Notification Failed");
 	}
 };
