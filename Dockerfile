@@ -10,11 +10,15 @@ COPY package*.json ./
 # Clear out any existing node_modules
 RUN rm -rf node_modules
 
+RUN apt-get update
+
+RUN apt-get install -y build-essential
+
+RUN apt-get install -y python
+
 # Install dependencies
 RUN npm install
 
-# Rebuild bcrypt to ensure compatibility with the Docker environment
-RUN npm install bcrypt --save --build-from-source --napi-modules=bcrypt_lib
 
 # Copy the rest of the application code to the working directory
 COPY . .
