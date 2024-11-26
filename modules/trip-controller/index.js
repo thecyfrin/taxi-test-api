@@ -131,7 +131,7 @@ module.exports = {
 				return res
 					.status(401)
 					.json({ success: false, message: "user-not-found" });
-			}
+
 
 			const driver = await DriverModel.findOne({ driverId });
 

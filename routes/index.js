@@ -145,11 +145,6 @@ routes.post(
 // trips - Rider
 routes.post("/create-trip", tripCreateValidation, createTrip);
 
-// routes.post(
-// 	"/get-driver-details",
-// 	tripGetDriverValidation,
-// 	getTripDriverDetails
-// );
 
 routes.get("/stats", async (req, res) => {
 	try {
@@ -168,6 +163,7 @@ routes.get("/stats", async (req, res) => {
 	}
 	// Wait for 5 seconds (adjust as necessary)
 });
+
 
 //trips - Driver
 routes.post("/get-ride-information", getRideInfoValidation, getRideInformation);
