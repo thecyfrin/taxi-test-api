@@ -1,11 +1,25 @@
-const private_key = require("./serviceAccountKey.json");
 const admin = require("firebase-admin");
+require("dotenv").config();
+
+const serviceCert = {
+	type: process.env.FIREBASE_ADMIN_TYPE,
+	project_id: process.env.FIREBASE_ADMIN_PROJECT_ID,
+	private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
+	private_key: process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, "\n"),
+	client_email: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+	client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
+	auth_uri: process.env.FIREBASE_ADMIN_AUTH_URI,
+	token_uri: process.env.FIREBASE_ADMIN_TOKEN_URI,
+	auth_provider_x509_cert_url: process.env.FIREBASE_ADMIN_AUTH_PROVIDER,
+	client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_CERT,
+	universe_domain: process.env.FIREBASE_ADMIN_UNIVERSE_DOMAIN,
+};
 
 admin.initializeApp({
-	credential: admin.credential.cert(private_key),
-	databaseURL:
-		"https://gazipur-city-default-rtdb.asia-southeast1.firebasedatabase.app",
+	credential: admin.credential.cert(serviceCert),
+	databaseURL: process.env.DATABASE_URL,
 });
+
 const sendSingleNotification = async (token, title, description, tripId) => {
 	if (!token) {
 		console.log("No valid token provided.");
