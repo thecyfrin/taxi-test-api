@@ -8,9 +8,11 @@ const setupSocket = (server) => {
 	io = new Server(server, {
 		cors: {
 			// origin: "*", // Adjust the origin as needed for your setup
-			origin: "http://192.168.10.115:3000",
+			origin: "*",
 			methods: ["GET", "POST"],
+			allowedHeaders: [`Access-Control-Allow-Origin`],
 		},
+		maxHttpBufferSize: 1e8,
 	});
 
 	io.on("connection", (socket) => {
