@@ -10,9 +10,7 @@ const setupSocket = (server) => {
 			// origin: "*", // Adjust the origin as needed for your setup
 			origin: "*",
 			methods: ["GET", "POST"],
-			allowedHeaders: [`Access-Control-Allow-Origin`],
 		},
-		maxHttpBufferSize: 1e8,
 	});
 
 	io.on("connection", (socket) => {
